@@ -8,13 +8,13 @@ SaaS B2B/freelance de pagos en garantía **no-custodio** para Latinoamérica: el
 .
 ├── packages/
 │   ├── contracts/          # Foundry: MilestoneEscrow.sol, MockUSDC, tests, deploy script
-│   └── shared/             # (Fase 2) ABIs tipados, direcciones por chainId, esquemas Zod
+│   └── shared/             # ABIs tipados, chains/direcciones, esquemas Zod, montos/fees, tipos de Supabase
 ├── apps/
-│   └── web/                # (Fase 2) Next.js 15 + Privy + wagmi/viem + Supabase + Resend
+│   └── web/                # Next.js 15 + Privy + wagmi/viem + Supabase + Resend
 └── supabase/
     ├── config.toml         # Stack local (puertos 553xx para no chocar con otros proyectos)
-    ├── migrations/         # 0001_initial_schema.sql: tablas, índices, RLS, checkout público
-    └── tests/database/     # Tests pgTAP de constraints y RLS
+    ├── migrations/         # 0001 esquema + RLS + checkout público; 0002 funciones transaccionales del backend
+    └── tests/database/     # Tests pgTAP de constraints, RLS y funciones
 ```
 
 ## Requisitos
@@ -39,7 +39,7 @@ pnpm --filter @escrow/contracts gas
 # Base de datos local
 pnpm db:start                            # Postgres + API en http://127.0.0.1:55321
 pnpm db:reset                            # re-aplica migraciones
-supabase test db                         # 30 tests pgTAP (constraints + RLS)
+supabase test db                         # 39 tests pgTAP (constraints, RLS y funciones)
 pnpm db:lint
 ```
 
@@ -56,6 +56,49 @@ pnpm deploy:base-sepolia                          # forge script ... --account d
 ```
 
 En local: `pnpm --filter @escrow/contracts anvil` y, en otra terminal, `pnpm --filter @escrow/contracts deploy:local` (despliega también `MockUSDC`).
+
+## App web (`apps/web`)
+
+### Correr todo en local (Anvil + Supabase local)
+
+```bash
+pnpm db:start                                      # Supabase local
+pnpm --filter @escrow/contracts anvil              # terminal 1: red local
+pnpm --filter @escrow/contracts deploy:local       # terminal 2: MockUSDC + MilestoneEscrow (direcciones deterministas)
+pnpm --filter @escrow/web dev                      # http://localhost:3000
+```
+
+En `.env`: `NEXT_PUBLIC_CHAIN_ID=31337`, las direcciones que imprime el deploy y las keys de `supabase status`. Sin `RESEND_API_KEY` los correos se escriben en la consola del servidor.
+
+Para pasar a Base Sepolia con usuarios reales sigue [docs/credenciales.md](docs/credenciales.md): qué cuentas crear y
+qué variable de `.env` completa cada una.
+
+### Configuración de Privy (dashboard)
+
+1. **Login methods:** Email, Google y External wallets (MetaMask, Coinbase Wallet, Rainbow, WalletConnect).
+2. **Embedded wallets:** Ethereum, creación automática para usuarios sin wallet.
+3. **Smart wallets (ERC-4337):** activarlas en Base y Base Sepolia con un paymaster (p. ej. Coinbase Developer Platform). El depósito queda en `approve + createAndFundEscrow` dentro de una sola UserOperation, sin gas para el usuario. Las wallets externas usan `permit` (EIP-2612) + depósito en una transacción.
+4. **MFA:** habilitar *passkey* y exigir MFA para acciones de wallet, así Privy pide la biometría antes de firmar liberaciones.
+5. **Allowed origins:** el dominio de la app (y `http://localhost:3000` en desarrollo).
+
+### Consistencia on-chain / off-chain
+
+- El frontend nunca marca nada como pagado: después de cada transacción solo envía el `txHash` a `POST /api/escrow/sync`.
+- El backend lee el recibo desde **su** RPC, decodifica los eventos de `MilestoneEscrow` y valida `referenceId` (UUID del acuerdo), payee, token y el monto de cada hito antes de escribir en Supabase.
+- `(tx_hash, log_index)` es único en `escrow_activity_logs`: repetir el sync no duplica registros ni correos (Resend recibe además claves de idempotencia).
+- Si el navegador se cierra entre la confirmación y el sync, la vista `/pay` reintenta el sync pendiente al volver.
+
+### Rutas
+
+| Ruta | Acceso | Uso |
+|---|---|---|
+| `/pay/[id o short_code]` | pública | Checkout: depositar, liberar, subir entregable, reembolsar, disputar |
+| `/dashboard`, `/dashboard/new` | sesión Privy | Acuerdos del usuario y creación de links de cobro |
+| `/arbitration` | `ARBITRATION_ADMIN_EMAILS` | Evidencias y transacción `resolveDispute` para la Safe del árbitro (lote de Transaction Builder) |
+| `POST /api/escrow/sync` | pública (verificación on-chain) | Reconciliación idempotente |
+| `/api/escrows/*`, `/api/me` | Bearer token de Privy | Creación, detalle privado, entregables y evidencias |
+
+Emails (Resend): invitación al cliente, garantía depositada (proveedor + recibo al cliente), entregable listo, fondos liberados, reembolso, disputa abierta (partes + árbitros) y disputa resuelta.
 
 ## Smart contract: `MilestoneEscrow`
 

@@ -1,0 +1,25 @@
+{
+  "name": "@escrow/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ABIs tipados, direcciones por chainId, esquemas Zod y utilidades compartidas",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./database": "./src/database.types.ts"
+  },
+  "scripts": {
+    "generate:abi": "node scripts/generate-abi.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "viem": "^2.57.16",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

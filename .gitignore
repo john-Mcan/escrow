@@ -1,0 +1,40 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Variables de entorno (solo se versiona el ejemplo)
+.env
+.env.*
+!.env.example
+
+# Turborepo / builds
+.turbo/
+dist/
+build/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+
+# Foundry
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/**/31337/
+packages/contracts/broadcast/**/dry-run/
+packages/contracts/lcov.info
+packages/contracts/coverage/
+
+# Supabase (la CLI ignora .branches/.temp dentro de supabase/)
+supabase/.branches/
+supabase/.temp/
+
+# Logs y SO
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+*.swp

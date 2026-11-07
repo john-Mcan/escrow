@@ -1,0 +1,20 @@
+{
+  "name": "@escrow/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MilestoneEscrow: escrow no-custodio por hitos en USDC (Foundry)",
+  "license": "MIT",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:ci": "FOUNDRY_PROFILE=ci forge test",
+    "coverage": "forge coverage --report summary --no-match-coverage \"(test|script)/|mocks\"",
+    "gas": "forge test --gas-report",
+    "lint": "forge lint",
+    "format": "forge fmt",
+    "format:check": "forge fmt --check",
+    "anvil": "anvil --chain-id 31337",
+    "deploy:local": "forge script script/DeployMilestoneEscrow.s.sol --rpc-url localhost --broadcast --unlocked --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "deploy:base-sepolia": "forge script script/DeployMilestoneEscrow.s.sol --rpc-url base_sepolia --account deployer --broadcast --verify"
+  }
+}

@@ -70,8 +70,9 @@ pnpm --filter @escrow/web dev                      # http://localhost:3000
 
 En `.env`: `NEXT_PUBLIC_CHAIN_ID=31337`, las direcciones que imprime el deploy y las keys de `supabase status`. Sin `RESEND_API_KEY` los correos se escriben en la consola del servidor.
 
-Para pasar a Base Sepolia con usuarios reales sigue [docs/credenciales.md](docs/credenciales.md): qué cuentas crear y
-qué variable de `.env` completa cada una.
+Para probar en localhost con login real y USDC de prueba en Base Sepolia (lo mínimo), sigue
+[docs/prueba-local-sepolia.md](docs/prueba-local-sepolia.md). La guía completa de cuentas para staging y producción está en
+[docs/credenciales.md](docs/credenciales.md), y el plan hasta mainnet en [docs/roadmap.md](docs/roadmap.md).
 
 ### Configuración de Privy (dashboard)
 

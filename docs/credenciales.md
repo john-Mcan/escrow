@@ -3,6 +3,10 @@
 Guía para pasar del entorno local (Anvil) a **Base Sepolia** con usuarios reales. Cada paso indica qué variable de
 `.env` completa. Los nombres de menús de los dashboards pueden variar levemente según la versión de cada servicio.
 
+> Para una primera prueba en localhost (sin Safes, Supabase cloud ni Resend) usa la versión mínima:
+> [prueba-local-sepolia.md](prueba-local-sepolia.md). En Windows, despliega desde PowerShell con el bloque de su
+> paso 7: si tu `.env` tiene saltos de línea CRLF, `source ../../.env` en Git Bash deja un `\r` al final de cada valor.
+
 > **Seguridad:** los secretos (`PRIVY_APP_SECRET`, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, URLs de RPC con API key)
 > van solo en el `.env` local o en las variables de entorno del hosting. No se pegan en chats, issues ni commits.
 > Las direcciones públicas y el `NEXT_PUBLIC_PRIVY_APP_ID` no son secretos.

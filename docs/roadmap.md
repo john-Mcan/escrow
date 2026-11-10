@@ -71,12 +71,23 @@ Tienen plazos largos y sus respuestas pueden cambiar el producto.
 
 **Objetivo:** probar todo con servicios reales antes de seguir construyendo.
 
-- [ ] Credenciales y deploy según [prueba-local-sepolia.md](prueba-local-sepolia.md).
+- [x] Credenciales y deploy según [prueba-local-sepolia.md](prueba-local-sepolia.md). `MilestoneEscrow` en
+      [`0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863`](https://sepolia.basescan.org/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863)
+      (bloque 57096254, 2026-11-10).
 - [ ] Recorrer el flujo completo: login con email, Google y wallet; wallet embebida; passkey; crear cobro;
       depositar (permit); entregable; liberar; reembolsar; disputar; evidencia; resolver desde `/arbitration`;
       reintento de sync tras cerrar el navegador.
+  - [x] 2026-11-10, acuerdo `GUr8C48BFZ` (3 hitos de 1 USDC): login con email y wallet embebida, crear cobro,
+        depositar con permit, entregable, liberar, reembolsar, disputar con evidencia y resolver desde
+        `/arbitration` con MetaMask. Saldos on-chain cuadrados: el contrato quedó en 0 y la comisión llegó a
+        Treasury. MetaMask envió la resolución como transacción EIP-7702 con gas pagado por su relayer, y el sync la
+        reconcilió igual porque lee los eventos del contrato.
+  - [ ] Login con Google y con wallet externa, passkey y reintento de sync tras cerrar el navegador.
 - [ ] Opcional: paymaster y smart wallets (depósito sin gas).
 - [ ] Corregir lo que aparezca en el recorrido.
+  - [x] Depósito con wallet embebida: la ventana de firma de Privy fallaba (`Cannot destructure property 'method'
+        of 's.signMessage'`) si la transacción se pedía antes de que terminara de cerrarse. Se agregó una pausa
+        entre el permit y el depósito en `use-escrow-transactions.ts`.
 - [ ] Mostrar la dirección completa de la wallet con botón de copiar y el saldo de USDC. Hoy solo se ve abreviada, y
       el usuario necesita la dirección para recibir USDC.
 - [ ] Quitar dependencias sin uso de `apps/web`: `@x402/core`, `@x402/evm` y `@x402/svm` (no se importan en ningún
@@ -143,7 +154,9 @@ página para comparar. Eliges una, y la guía queda en `docs/marca.md`.
 - [ ] Tokens en `apps/web/src/app/globals.css` (colores, radios, escala tipográfica) y fuentes en `layout.tsx`.
 - [ ] Assets en `apps/web/public/` y `metadata` (iconos, imagen OG por defecto, `themeColor`).
 - [ ] Componentes `Brand` y `BrandMark` con el logo final.
-- [ ] Modal de Privy: logo, color de acento, tema y textos.
+- [ ] Modal de Privy: logo, color de acento, tema y textos. La firma del permit hoy muestra el EIP-712 crudo, en
+      inglés ("Sign message") y con las direcciones cortadas: usar `useSignTypedData` de Privy con `uiOptions`
+      (título, descripción y botón en español que expliquen "autorizas depositar X USDC en garantía").
 - [ ] Plantillas de email: encabezado con logo, colores y pie con los datos de la empresa.
 
 ### Repaso de consistencia de las superficies existentes
@@ -157,6 +170,48 @@ página para comparar. Eliges una, y la guía queda en `docs/marca.md`.
 - [ ] 404, toasts y diálogos
 - [ ] Los 7 emails transaccionales
 - [ ] Accesibilidad (contraste, foco visible, lectores de pantalla) y diseño en móvil
+
+### Hallazgos del recorrido en Base Sepolia (Fase 3, 2026-11-10)
+
+Notas del primer recorrido real (cliente y proveedor con wallet embebida de Privy) para la pasada de pulido UI/UX.
+
+- [ ] **Carga del checkout (`/pay/[id]`):** al recargar, nuestra información queda varios segundos en estado de
+      carga ("procesando") y recién después aparecen las acciones del hito (p. ej. "Liberar fondos"). Las acciones
+      esperan a que Privy esté listo y a `/api/me`.
+  - En desarrollo parte de la demora es la compilación bajo demanda de Next: `/api/me` tardó 7 s y el sync 12-18 s,
+    pero el mismo sync repetido directo tarda 0,4-1 s. Medir con `next build && next start` antes de optimizar.
+  - Mostrar el estado del acuerdo de inmediato (datos públicos), con un skeleton solo en la zona de acciones mientras
+    se identifica al usuario.
+- [ ] **Ventanas de Privy:** salen en inglés ("Sign message", "Sign and continue", "Transaction complete"), muestran
+      datos técnicos (EIP-712, hex, direcciones cortadas) y tapan la información de nuestro sitio mientras el usuario
+      decide.
+  - Pasar `uiOptions` en español (título, descripción y botón) en cada firma y transacción: permit, depósito,
+    liberar, reembolsar y disputar. Ver también el punto del modal de Privy en *Implementación*.
+  - Revisar si Privy permite cambiar el idioma de su modal.
+  - Que nuestro resumen (monto, quién recibe, comisión) se vea antes de abrir la ventana de Privy, en todas las
+    acciones. "Liberar fondos" ya lo hace; el depósito no.
+  - Evaluar ocultar las ventanas de Privy con nuestra propia confirmación (`showWalletUIs: false`). Requiere apagar
+    "enforce wallet UIs" en el dashboard de Privy y cuidar que la passkey siga pidiéndose al mover dinero.
+- [ ] **Overlay de errores de Next en desarrollo:** al depositar y al liberar aparece la advertencia de React
+      "React does not recognize the `isActive` prop on a DOM element". Viene de componentes internos de `@privy-io/react-auth` 3.51.3, no de
+      nuestro código. Solo pasa en desarrollo; revisar al actualizar Privy.
+- [ ] **Flujo de disputa:** hoy son pasos separados e innecesarios: "Abrir disputa" → confirmar el resumen → firmar en
+      Privy → el diálogo se cierra con "Disputa abierta. Aporta tu evidencia." → hay que volver a hacer clic para
+      abrir el formulario de evidencia y enviarlo. Unificarlo en un solo flujo:
+  - Pedir la versión de los hechos (y el enlace opcional) en el mismo diálogo de "Abrir disputa", antes de firmar.
+  - Firmar en Privy y, cuando la disputa quede confirmada on-chain, enviar la evidencia automáticamente (la API la
+    acepta solo con el hito en disputa). Alternativa mínima: dejar el diálogo abierto con el formulario de evidencia
+    después de firmar.
+  - Conservar el texto si la transacción falla o se rechaza, para no reescribirlo.
+  - El primer envío de evidencia tardó 23 s en desarrollo (compilación de la ruta): revisar el indicador de carga.
+- [ ] **Panel de arbitraje (`/arbitration`):** "Conectar la hardware wallet del árbitro" es un botón `ghost` que se ve
+      como texto suelto, y en la prueba no se reconoció como botón. Además queda por debajo del recuadro de la Safe,
+      que es lo que más destaca.
+  - Dar jerarquía clara entre los dos caminos: firmar con la wallet conectada y ejecutar desde la Safe (copiar
+    datos, lote para Transaction Builder y registrar el hash).
+  - "Hardware wallet" confunde cuando el árbitro usa MetaMask: usar "Conectar la wallet del árbitro".
+- [ ] **Decisión de producto:** hoy el cliente puede "Liberar fondos" antes de que el proveedor suba el entregable (el
+      contrato lo permite). Decidir si el botón se muestra siempre o se destaca recién con el entregable.
 
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 

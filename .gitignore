@@ -21,6 +21,7 @@ packages/contracts/out/
 packages/contracts/cache/
 packages/contracts/broadcast/**/31337/
 packages/contracts/broadcast/**/dry-run/
+packages/contracts/broadcast/**/*.lock
 packages/contracts/lcov.info
 packages/contracts/coverage/
 

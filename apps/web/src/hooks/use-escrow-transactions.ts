@@ -48,6 +48,13 @@ interface Call {
 
 const PENDING_KEY = (escrowId: string) => `hito:pending-sync:${escrowId}`;
 
+/**
+ * Pausa entre la firma del permit y la transacción. Privy cierra su ventana de firma con retraso; si la siguiente
+ * solicitud llega antes, esa ventana se vuelve a renderizar con los datos de la transacción y falla
+ * ("Cannot destructure property 'method' of 's.signMessage'", @privy-io/react-auth 3.51).
+ */
+const WALLET_MODAL_SETTLE_MS = 800;
+
 /** Si el navegador se cierra entre la confirmación y la reconciliación, la vista reintenta el sync al volver. */
 export function readPendingSync(escrowId: string): Hex | null {
   try {
@@ -231,6 +238,7 @@ export function useEscrowTransactions(escrowId: string) {
           return null;
         });
         if (permit) {
+          await new Promise((resolve) => setTimeout(resolve, WALLET_MODAL_SETTLE_MS));
           return writeContract(config, {
             account,
             address: escrowContractAddress,

@@ -34,10 +34,10 @@ export const ESCROW_STATUS_LABELS: Record<EscrowStatus, string> = {
 };
 
 export const MILESTONE_STATUS_LABELS: Record<MilestoneStatus, string> = {
-  pending: "Sin fondos",
+  pending: "Por depositar",
   funded: "En garantía",
-  delivered_review: "Entregado, en revisión",
-  released: "Liberado",
+  delivered_review: "Entregado, por revisar",
+  released: "Pagado",
   refunded: "Reembolsado",
   disputed: "En disputa",
   resolved: "Resuelto por árbitro",
@@ -45,9 +45,9 @@ export const MILESTONE_STATUS_LABELS: Record<MilestoneStatus, string> = {
 
 export const ACTIVITY_LABELS: Record<EscrowActionType, string> = {
   created: "Link de cobro creado",
-  funded: "Garantía depositada",
+  funded: "Depósito en garantía",
   deliverable_submitted: "Entregable subido",
-  released: "Fondos liberados",
+  released: "Pago liberado",
   refunded: "Hito reembolsado",
   dispute_opened: "Disputa abierta",
   dispute_resolved: "Disputa resuelta",

@@ -22,7 +22,7 @@ export function describeTxError(error: unknown): string {
   if (error instanceof InsufficientBalanceError || error instanceof ApiClientError) return error.message;
 
   if (error instanceof BaseError) {
-    if (error.walk((e) => e instanceof UserRejectedRequestError)) return "Cancelaste la firma. No se movieron fondos.";
+    if (error.walk((e) => e instanceof UserRejectedRequestError)) return "Cancelaste la confirmación. No se movió dinero.";
     const revert = error.walk((e) => e instanceof ContractFunctionRevertedError);
     if (revert instanceof ContractFunctionRevertedError && revert.data?.errorName) {
       return CONTRACT_ERRORS[revert.data.errorName] ?? `El contrato rechazó la operación (${revert.data.errorName}).`;
@@ -31,16 +31,18 @@ export function describeTxError(error: unknown): string {
   }
 
   if (error instanceof Error) {
-    if (/reject|denied|cancel/i.test(error.message)) return "Cancelaste la operación. No se movieron fondos.";
+    if (/reject|denied|cancel|closed|exited/i.test(error.message)) return "Cancelaste la operación. No se movió dinero.";
     return error.message;
   }
   return "Ocurrió un error inesperado. Intenta de nuevo.";
 }
 
+/** Etiqueta corta de cada etapa, para botones y avisos de avance. */
 export const TX_STEP_LABELS = {
   idle: "",
-  preparing: "Preparando la transacción…",
-  signing: "Firma en tu wallet…",
-  confirming: "Confirmando en Base…",
-  syncing: "Registrando el movimiento…",
+  preparing: "Preparando…",
+  authorizing: "Autoriza el monto…",
+  signing: "Confirma en la ventana…",
+  confirming: "Confirmando en la red…",
+  syncing: "Actualizando el acuerdo…",
 } as const;

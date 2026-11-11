@@ -1,32 +1,35 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { Figtree } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import { publicEnv } from "@/lib/env";
 import "./globals.css";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree", display: "swap" });
-const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap" });
+const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.NEXT_PUBLIC_APP_URL),
-  title: { default: "Hito | Cobros en garantía por hitos", template: "%s | Hito" },
+  title: { default: "extan | Cobros en garantía por hitos", template: "%s | extan" },
   description:
-    "Crea un link de cobro por hitos. Tu cliente deposita USDC en garantía y liberas cada pago al entregar. Sin custodia, sin gas.",
+    "Crea un link de cobro por hitos. Tu cliente deposita en garantía y recibes cada pago al entregar. El dinero nunca pasa por nuestras manos.",
+  applicationName: "extan",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f6f9",
+  themeColor: "#08090b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${figtree.variable} ${bricolage.variable}`}>
-      <body className="min-h-dvh">
+    <html lang="es" className={figtree.variable}>
+      <body className="flex min-h-dvh flex-col">
         <Providers>
           <SiteHeader />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
           <Toaster position="top-center" />
         </Providers>
       </body>

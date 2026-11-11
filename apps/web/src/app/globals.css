@@ -4,7 +4,7 @@
 
 @theme inline {
   --font-sans: var(--font-figtree);
-  --font-heading: var(--font-bricolage);
+  --font-heading: var(--font-figtree);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -25,7 +25,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Semántica del dinero: bloqueado en garantía, liberado, en disputa. */
+  /* Capas de superficie: fondo < superficie < elevada. */
+  --color-surface: var(--card);
+  --color-raised: var(--raised);
+  --color-line-strong: var(--line-strong);
+  --color-subtle: var(--subtle);
+
+  /* Semántica del dinero: en garantía (plata), liberado (esmeralda), en disputa (ámbar). */
   --color-vault: var(--vault);
   --color-vault-soft: var(--vault-soft);
   --color-seal: var(--seal);
@@ -33,42 +39,51 @@
   --color-caution: var(--caution);
   --color-caution-soft: var(--caution-soft);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 24px;
+
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
 }
 
 :root {
-  --radius: 0.625rem;
+  color-scheme: dark;
+  --radius: 10px;
 
-  /* Tinta de cheque sobre papel frío. */
-  --background: #f4f6f9;
-  --foreground: #14213d;
-  --card: #ffffff;
-  --card-foreground: #14213d;
-  --popover: #ffffff;
-  --popover-foreground: #14213d;
-  --primary: #14213d;
-  --primary-foreground: #f4f6f9;
-  --secondary: #e6ebf3;
-  --secondary-foreground: #14213d;
-  --muted: #eceff5;
-  --muted-foreground: #556079;
-  --accent: #e6ebf3;
-  --accent-foreground: #14213d;
-  --destructive: #b42318;
-  --border: #d8deea;
-  --input: #cfd6e4;
-  --ring: #3d5a99;
+  --background: #08090b;
+  --foreground: #f4f5f4;
+  --card: #151719;
+  --card-foreground: #f4f5f4;
+  --raised: #1c1f22;
+  --popover: #17191c;
+  --popover-foreground: #f4f5f4;
+  --primary: #7de7bb;
+  --primary-foreground: #08090b;
+  --secondary: #1c1f22;
+  --secondary-foreground: #f4f5f4;
+  --muted: #1c1f22;
+  --muted-foreground: #a1a7ad;
+  --subtle: #7d848b;
+  --accent: #1c1f22;
+  --accent-foreground: #f4f5f4;
+  --destructive: #ff8a80;
+  --border: #24272b;
+  --line-strong: #34383d;
+  --input: #2c3035;
+  --ring: #7de7bb;
 
-  --vault: #2f4b8f;
-  --vault-soft: #e4eaf7;
-  --seal: #1b7356;
-  --seal-soft: #dff1e8;
-  --caution: #9a5b06;
-  --caution-soft: #fbefd8;
+  --vault: #c3cad2;
+  --vault-soft: rgb(195 202 210 / 0.08);
+  --seal: #7de7bb;
+  --seal-soft: rgb(125 231 187 / 0.1);
+  --caution: #f2b661;
+  --caution-soft: rgb(242 182 97 / 0.1);
+
+  /* Plata semimetalizada: el dinero retenido. Único gradiente del sistema. */
+  --metal: linear-gradient(135deg, #f4f6f8 0%, #b2bac3 36%, #e4e8ec 60%, #8d96a0 100%);
 }
 
 @layer base {
@@ -80,23 +95,198 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.6;
   }
-  h1,
-  h2,
+  ::selection {
+    background: rgb(125 231 187 / 0.28);
+    color: var(--foreground);
+  }
+
+  /* Jerarquía por defecto: cada nivel cambia tamaño, peso y tracking a la vez. */
+  h1 {
+    font-size: clamp(1.875rem, 1.2rem + 1.6vw, 2.5rem);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+  h2 {
+    font-size: 1.375rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
   h3 {
-    @apply font-heading tracking-tight text-balance;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
+
   button:not(:disabled),
-  [role="button"]:not(:disabled) {
+  [role="button"]:not(:disabled),
+  summary {
     cursor: pointer;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  /* Despliegue suave de <details> donde el navegador lo soporta; en el resto abre sin animación. */
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    opacity: 0;
+    transition:
+      block-size 0.3s ease-out,
+      opacity 0.3s ease-out,
+      content-visibility 0.3s allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
   }
 }
 
-@layer utilities {
-  /* Montos: cifras tabulares para que las columnas de dinero se alineen. */
-  .amount {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+@utility t-display {
+  font-size: clamp(2.6rem, 1.4rem + 4.2vw, 4.5rem);
+  line-height: 0.98;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+@utility t-lead {
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+@utility t-meta {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--subtle);
+}
+
+/* Montos: cifras tabulares para que las columnas de dinero se alineen. */
+@utility amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@utility bg-metal {
+  background-image: var(--metal);
+}
+
+@utility text-metal {
+  background-image: var(--metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Borde fino iluminado arriba: da volumen a las superficies sin sombras pesadas. */
+@utility surface-edge {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.045),
+    0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Loader de marca: los corchetes se cierran sobre el valor y lo sueltan. */
+@keyframes bracket-left {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  45%,
+  55% {
+    transform: translateX(3px);
+  }
+}
+@keyframes bracket-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  45%,
+  55% {
+    transform: translateX(-3px);
+  }
+}
+@keyframes core-pulse {
+  0%,
+  100% {
+    transform: scale(0.72);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes core-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes scan {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(220%);
+  }
+}
+@keyframes progress-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+@keyframes ring-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  80%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+@keyframes seal-in {
+  0% {
+    transform: scale(0.4) rotate(-12deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
@@ -105,6 +295,7 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

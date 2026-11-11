@@ -2,19 +2,23 @@
 
 import { useMfaEnrollment, usePrivy } from "@privy-io/react-auth";
 import { useQueryClient } from "@tanstack/react-query";
-import { FingerprintIcon, LayoutListIcon, LogOutIcon, ScaleIcon } from "lucide-react";
+import { ChevronDownIcon, FingerprintIcon, LayoutListIcon, LogOutIcon, QrCodeIcon, ScaleIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { LocalAmount, Usdc } from "@/components/money";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReceiveUsdc } from "@/components/wallet/receive-usdc";
 import { useMe } from "@/hooks/use-me";
+import { useUsdcBalance } from "@/hooks/use-usdc-balance";
 import { shortAddress } from "@/lib/format";
 
 export function UserMenu() {
@@ -22,59 +26,99 @@ export function UserMenu() {
   const { showMfaEnrollmentModal } = useMfaEnrollment();
   const { data: me } = useMe();
   const queryClient = useQueryClient();
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const balance = useUsdcBalance(me?.walletAddress);
 
-  if (!ready) return <Skeleton className="h-8 w-24" />;
+  if (!ready) return <Skeleton className="h-9 w-28" />;
   if (!authenticated) {
     return (
-      <Button size="lg" onClick={() => login()}>
+      <Button variant="outline" size="sm" onClick={() => login()}>
         Ingresar
       </Button>
     );
   }
 
-  const label = me?.displayName ?? user?.email?.address ?? shortAddress(me?.walletAddress);
+  const email = me?.email ?? user?.email?.address ?? null;
+  const label = me?.displayName || email || shortAddress(me?.walletAddress) || "Mi cuenta";
+  const initial = label.trim().charAt(0).toUpperCase();
   const hasPasskey = user?.mfaMethods.includes("passkey") ?? false;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="lg" className="max-w-56">
-          <span className="truncate">{label || "Mi cuenta"}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="flex flex-col gap-0.5">
-          <span className="truncate">{me?.email ?? "Sin email"}</span>
+    <>
+      <DropdownMenu onOpenChange={(open) => open && void balance.refetch()}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="group/menu h-9 gap-2 pr-2 pl-1 text-foreground">
+            <span
+              aria-hidden="true"
+              className="grid size-7 place-items-center rounded-full border border-line-strong bg-raised text-xs font-semibold"
+            >
+              {initial}
+            </span>
+            <span className="hidden max-w-40 truncate sm:inline">{label}</span>
+            <ChevronDownIcon className="text-muted-foreground transition-transform duration-200 group-aria-expanded/menu:rotate-180" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-72">
+          <div className="px-2.5 pt-2 pb-3">
+            <p className="truncate font-medium">{label}</p>
+            {email && email !== label && <p className="truncate text-sm text-muted-foreground">{email}</p>}
+          </div>
+          <div className="mx-1 mb-1.5 rounded-lg bg-raised px-3 py-3">
+            <p className="text-xs text-muted-foreground">Saldo disponible</p>
+            {balance.data !== undefined ? (
+              <>
+                <Usdc amount={balance.data} className="mt-0.5 block text-lg font-semibold" unitClassName="text-sm" />
+                <LocalAmount amount={balance.data} className="text-xs" />
+              </>
+            ) : (
+              <Skeleton className="mt-1.5 h-6 w-28" />
+            )}
+          </div>
           {me?.walletAddress && (
-            <span className="amount font-normal text-muted-foreground">Wallet {shortAddress(me.walletAddress)}</span>
+            <DropdownMenuItem onSelect={() => setReceiveOpen(true)}>
+              <QrCodeIcon /> Recibir USDC
+            </DropdownMenuItem>
           )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard">
-            <LayoutListIcon /> Mis cobros
-          </Link>
-        </DropdownMenuItem>
-        {me?.isArbitrationAdmin && (
           <DropdownMenuItem asChild>
-            <Link href="/arbitration">
-              <ScaleIcon /> Panel de arbitraje
+            <Link href="/dashboard">
+              <LayoutListIcon /> Mis acuerdos
             </Link>
           </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onSelect={() => void showMfaEnrollmentModal()}>
-          <FingerprintIcon /> {hasPasskey ? "Administrar passkeys" : "Activar passkey"}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={async () => {
-            await logout();
-            queryClient.clear();
-          }}
-        >
-          <LogOutIcon /> Salir
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {me?.isArbitrationAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/arbitration">
+                <ScaleIcon /> Panel de arbitraje
+              </Link>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onSelect={() => void showMfaEnrollmentModal()}>
+            <FingerprintIcon /> {hasPasskey ? "Administrar passkeys" : "Activar passkey"}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={async () => {
+              await logout();
+              queryClient.clear();
+            }}
+          >
+            <LogOutIcon /> Salir
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {me?.walletAddress && (
+        <Dialog open={receiveOpen} onOpenChange={setReceiveOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Recibir USDC</DialogTitle>
+              <DialogDescription>
+                Usa esta dirección para cargar saldo desde un exchange o desde otra wallet. Llega en menos de un minuto.
+              </DialogDescription>
+            </DialogHeader>
+            <ReceiveUsdc address={me.walletAddress} />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }

@@ -12,7 +12,7 @@ const serverEnvSchema = z.object({
   ANVIL_RPC_URL: z.url().default("http://127.0.0.1:8545"),
   /** Sin key los correos se escriben en el log del servidor (desarrollo). */
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default("Hito <onboarding@resend.dev>"),
+  EMAIL_FROM: z.string().default("extan <onboarding@resend.dev>"),
   EMAIL_REPLY_TO: z.email().optional(),
   /** Emails (separados por coma) con acceso al panel de arbitraje. */
   ARBITRATION_ADMIN_EMAILS: z

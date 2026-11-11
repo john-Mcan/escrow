@@ -8,28 +8,34 @@ import {
   type PublicCheckout,
   uuidToBytes32,
 } from "@escrow/shared";
-import { useWallets } from "@privy-io/react-auth";
+import { type SendTransactionModalUIOptions, useSendTransaction, useSignTypedData, useWallets } from "@privy-io/react-auth";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { type Address, encodeFunctionData, type Hex, parseSignature } from "viem";
 import { useConfig } from "wagmi";
-import {
-  getAccount,
-  readContract,
-  sendTransaction,
-  signTypedData,
-  switchChain,
-  waitForTransactionReceipt,
-  writeContract,
-} from "wagmi/actions";
+import { getAccount, readContract, sendTransaction, signTypedData, switchChain, waitForTransactionReceipt } from "wagmi/actions";
 import type { SyncResponse } from "@/lib/api-types";
 import { appChain, escrowContractAddress, usdcAddress } from "@/lib/env";
 import { apiFetch } from "./use-api";
 import { useMe } from "./use-me";
 
-export type TxStep = "idle" | "preparing" | "signing" | "confirming" | "syncing";
+/**
+ * Etapas de una operación, para mostrar avance: `authorizing` es la firma del permit (autorizar el monto) y
+ * `signing` la confirmación de la transacción en la wallet.
+ */
+export type TxStep = "idle" | "preparing" | "authorizing" | "signing" | "confirming" | "syncing";
+
+/** Con qué firma el usuario: smart wallet (una confirmación), wallet embebida de Privy o wallet externa. */
+export type WalletKind = "smart" | "embedded" | "external";
+
+/** Textos de la ventana de confirmación de Privy (solo aplica a wallets embebidas y smart wallets). */
+export interface TxCopy {
+  description: string;
+  buttonText: string;
+  action: string;
+}
 
 export class InsufficientBalanceError extends Error {
   constructor(
@@ -85,8 +91,9 @@ export async function syncTransaction(escrowId: string, txHash: Hex): Promise<Sy
 /**
  * Transacciones del escrow con dos caminos:
  * - Smart wallet de Privy (ERC-4337): approve + depósito en una sola UserOperation con gas patrocinado.
- * - Wallet EOA (MetaMask, Coinbase, Rainbow o embedded sin smart wallet): firma EIP-2612 `permit` + depósito en
- *   una transacción; si el token no soporta permit, approve + depósito.
+ * - Wallet EOA (embebida de Privy, MetaMask, Coinbase, Rainbow): firma EIP-2612 `permit` + depósito en una
+ *   transacción; si el token no soporta permit, approve + depósito.
+ * Con la wallet embebida se usan los hooks de Privy para que sus ventanas muestren nuestros textos en español.
  * Las passkeys/MFA de Privy se solicitan automáticamente al firmar con la embedded wallet.
  */
 export function useEscrowTransactions(escrowId: string) {
@@ -95,11 +102,21 @@ export function useEscrowTransactions(escrowId: string) {
   const { client: smartClient } = useSmartWallets();
   const { wallets } = useWallets();
   const { setActiveWallet } = useSetActiveWallet();
+  const { signTypedData: privySignTypedData } = useSignTypedData();
+  const { sendTransaction: privySendTransaction } = useSendTransaction();
   const { data: me } = useMe();
   const [step, setStep] = useState<TxStep>("idle");
 
   const sender = (me?.walletAddress ?? null) as Address | null;
   const usesSmartWallet = !!smartClient && !!sender && smartClient.account.address.toLowerCase() === sender;
+  const senderWallet = sender ? wallets.find((w) => w.address.toLowerCase() === sender) : undefined;
+  const walletKind: WalletKind | null = usesSmartWallet
+    ? "smart"
+    : senderWallet?.walletClientType === "privy"
+      ? "embedded"
+      : sender
+        ? "external"
+        : null;
 
   const prepareEoa = useCallback(async (): Promise<Address> => {
     const wallet = wallets.find((w) => w.address.toLowerCase() === sender);
@@ -111,13 +128,32 @@ export function useEscrowTransactions(escrowId: string) {
     return wallet.address as Address;
   }, [config, sender, setActiveWallet, wallets]);
 
-  const execute = useCallback(
-    async (call: Call): Promise<Hex> => {
-      if (usesSmartWallet && smartClient) return smartClient.sendTransaction({ calls: [call] });
+  /** Envía una o más llamadas con la wallet del usuario y devuelve el hash de la transacción. */
+  const sendCalls = useCallback(
+    async (calls: Call[], copy: TxCopy): Promise<Hex> => {
+      const uiOptions: SendTransactionModalUIOptions = {
+        description: copy.description,
+        buttonText: copy.buttonText,
+        transactionInfo: { title: "Detalles", action: copy.action, contractInfo: { name: "Contrato de garantía de extan" } },
+        successHeader: "Listo",
+        successDescription: "Estamos confirmando la operación en la red.",
+        isCancellable: true,
+      };
+      setStep("signing");
+      if (usesSmartWallet && smartClient) return smartClient.sendTransaction({ calls }, { uiOptions });
+      const [call] = calls;
+      if (!call || calls.length > 1) throw new Error("Esta wallet envía una llamada por transacción.");
       const account = await prepareEoa();
+      if (walletKind === "embedded") {
+        const { hash } = await privySendTransaction(
+          { to: call.to, data: call.data, chainId: appChain.id },
+          { address: account, uiOptions },
+        );
+        return hash;
+      }
       return sendTransaction(config, { account, to: call.to, data: call.data, chainId: appChain.id });
     },
-    [config, prepareEoa, smartClient, usesSmartWallet],
+    [config, prepareEoa, privySendTransaction, smartClient, usesSmartWallet, walletKind],
   );
 
   const confirmAndSync = useCallback(
@@ -173,18 +209,47 @@ export function useEscrowTransactions(escrowId: string) {
       if (!domain) return null;
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 30 * 60);
-      setStep("signing");
-      const signature = await signTypedData(config, {
-        account: owner,
-        domain,
-        types: PERMIT_TYPES,
-        primaryType: "Permit",
-        message: { owner, spender: escrowContractAddress, value, nonce, deadline },
-      });
+      setStep("authorizing");
+      let signature: Hex;
+      if (walletKind === "embedded") {
+        // Privy serializa el mensaje como JSON: los uint256 van como texto decimal.
+        const result = await privySignTypedData(
+          {
+            domain,
+            types: PERMIT_TYPES as unknown as Record<string, { name: string; type: string }[]>,
+            primaryType: "Permit",
+            message: {
+              owner,
+              spender: escrowContractAddress,
+              value: value.toString(),
+              nonce: nonce.toString(),
+              deadline: deadline.toString(),
+            },
+          },
+          {
+            address: owner,
+            uiOptions: {
+              title: "Autoriza el depósito",
+              description: `Permites que el contrato de garantía tome ${formatUsdc(value)} USDC de tu cuenta. El dinero se mueve recién en el siguiente paso.`,
+              buttonText: "Autorizar",
+              isCancellable: true,
+            },
+          },
+        );
+        signature = result.signature as Hex;
+      } else {
+        signature = await signTypedData(config, {
+          account: owner,
+          domain,
+          types: PERMIT_TYPES,
+          primaryType: "Permit",
+          message: { owner, spender: escrowContractAddress, value, nonce, deadline },
+        });
+      }
       const { r, s, v, yParity } = parseSignature(signature);
       return { deadline, r, s, v: Number(v ?? BigInt(yParity + 27)) };
     },
-    [config],
+    [config, privySignTypedData, walletKind],
   );
 
   const fund = useCallback(
@@ -195,6 +260,11 @@ export function useEscrowTransactions(escrowId: string) {
         const payee = checkout.payee_address;
         const referenceId = uuidToBytes32(checkout.id);
         const owner = sender as Address;
+        const copy: TxCopy = {
+          description: `Depositas ${formatUsdc(total)} USDC en garantía para "${checkout.title}". Se liberan solo cuando apruebes cada entrega.`,
+          buttonText: "Depositar",
+          action: "Depositar en garantía",
+        };
 
         const balance = await readContract(config, {
           address: usdcAddress,
@@ -212,14 +282,12 @@ export function useEscrowTransactions(escrowId: string) {
             args: [payee, usdcAddress, amounts, referenceId],
           }),
         };
+        const approveCall: Call = {
+          to: usdcAddress,
+          data: encodeFunctionData({ abi: erc20PermitAbi, functionName: "approve", args: [escrowContractAddress, total] }),
+        };
 
-        if (usesSmartWallet && smartClient) {
-          const approveCall: Call = {
-            to: usdcAddress,
-            data: encodeFunctionData({ abi: erc20PermitAbi, functionName: "approve", args: [escrowContractAddress, total] }),
-          };
-          return smartClient.sendTransaction({ calls: [approveCall, createCall] });
-        }
+        if (usesSmartWallet) return sendCalls([approveCall, createCall], copy);
 
         const account = await prepareEoa();
         const allowance = await readContract(config, {
@@ -228,61 +296,72 @@ export function useEscrowTransactions(escrowId: string) {
           functionName: "allowance",
           args: [account, escrowContractAddress],
         });
-        if (allowance >= total) {
-          return sendTransaction(config, { account, ...createCall, chainId: appChain.id });
-        }
+        if (allowance >= total) return sendCalls([createCall], copy);
 
         const permit = await signPermit(account, total).catch((error: unknown) => {
           // Rechazo explícito del usuario: no seguimos con el plan B.
-          if (error instanceof Error && /reject|denied/i.test(error.message)) throw error;
+          if (error instanceof Error && /reject|denied|cancel|closed|exited/i.test(error.message)) throw error;
           return null;
         });
         if (permit) {
           await new Promise((resolve) => setTimeout(resolve, WALLET_MODAL_SETTLE_MS));
-          return writeContract(config, {
-            account,
-            address: escrowContractAddress,
-            abi: milestoneEscrowAbi,
-            functionName: "createAndFundEscrowWithPermit",
-            args: [payee, usdcAddress, amounts, referenceId, permit.deadline, permit.v, permit.r, permit.s],
-            chainId: appChain.id,
-          });
+          const permitCall: Call = {
+            to: escrowContractAddress,
+            data: encodeFunctionData({
+              abi: milestoneEscrowAbi,
+              functionName: "createAndFundEscrowWithPermit",
+              args: [payee, usdcAddress, amounts, referenceId, permit.deadline, permit.v, permit.r, permit.s],
+            }),
+          };
+          return sendCalls([permitCall], copy);
         }
 
         // Plan B: token sin EIP-2612 -> approve + depósito (dos transacciones).
-        const approveHash = await writeContract(config, {
-          account,
-          address: usdcAddress,
-          abi: erc20PermitAbi,
-          functionName: "approve",
-          args: [escrowContractAddress, total],
-          chainId: appChain.id,
+        const approveHash = await sendCalls([approveCall], {
+          description: `Autorizas que el contrato de garantía tome ${formatUsdc(total)} USDC de tu cuenta.`,
+          buttonText: "Autorizar",
+          action: "Autorizar monto",
         });
         await waitForTransactionReceipt(config, { hash: approveHash, chainId: appChain.id });
-        return sendTransaction(config, { account, ...createCall, chainId: appChain.id });
+        await new Promise((resolve) => setTimeout(resolve, WALLET_MODAL_SETTLE_MS));
+        return sendCalls([createCall], copy);
       }),
-    [config, prepareEoa, run, sender, signPermit, smartClient, usesSmartWallet],
+    [config, prepareEoa, run, sendCalls, sender, signPermit, usesSmartWallet],
   );
 
   const milestoneCall = useCallback(
-    (functionName: "releaseMilestone" | "refundMilestone" | "raiseDispute", onchainEscrowId: string, index: number) =>
+    (
+      functionName: "releaseMilestone" | "refundMilestone" | "raiseDispute",
+      onchainEscrowId: string,
+      index: number,
+      copy: TxCopy,
+    ) =>
       run(() =>
-        execute({
-          to: escrowContractAddress,
-          data: encodeFunctionData({ abi: milestoneEscrowAbi, functionName, args: [BigInt(onchainEscrowId), BigInt(index)] }),
-        }),
+        sendCalls(
+          [
+            {
+              to: escrowContractAddress,
+              data: encodeFunctionData({ abi: milestoneEscrowAbi, functionName, args: [BigInt(onchainEscrowId), BigInt(index)] }),
+            },
+          ],
+          copy,
+        ),
       ),
-    [execute, run],
+    [run, sendCalls],
   );
 
   return {
     step,
     busy: step !== "idle",
     sender,
+    walletKind,
     usesSmartWallet,
     fund,
-    release: (onchainEscrowId: string, index: number) => milestoneCall("releaseMilestone", onchainEscrowId, index),
-    refund: (onchainEscrowId: string, index: number) => milestoneCall("refundMilestone", onchainEscrowId, index),
-    dispute: (onchainEscrowId: string, index: number) => milestoneCall("raiseDispute", onchainEscrowId, index),
+    release: (onchainEscrowId: string, index: number, copy: TxCopy) =>
+      milestoneCall("releaseMilestone", onchainEscrowId, index, copy),
+    refund: (onchainEscrowId: string, index: number, copy: TxCopy) =>
+      milestoneCall("refundMilestone", onchainEscrowId, index, copy),
+    dispute: (onchainEscrowId: string, index: number, copy: TxCopy) =>
+      milestoneCall("raiseDispute", onchainEscrowId, index, copy),
   };
 }

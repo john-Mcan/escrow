@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Arbitraje", robots: { index: false, 
 
 export default function ArbitrationPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
       <SignInGate title="Panel de arbitraje" description="Ingresa con la cuenta del equipo de arbitraje.">
         <ArbitrationPanel />
       </SignInGate>

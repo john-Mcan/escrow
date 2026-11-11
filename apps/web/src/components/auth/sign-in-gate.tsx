@@ -2,29 +2,25 @@
 
 import { usePrivy } from "@privy-io/react-auth";
 import type { ReactNode } from "react";
+import { BrandMark } from "@/components/brand";
+import { ExtanLoader } from "@/components/loaders";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 
 /** Muestra `children` solo con sesión iniciada; si no, una invitación a ingresar. */
 export function SignInGate({ title, description, children }: { title: string; description: string; children: ReactNode }) {
   const { ready, authenticated, login } = usePrivy();
 
-  if (!ready) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    );
-  }
+  if (!ready) return <ExtanLoader className="py-24" label="Cargando tu cuenta" />;
   if (!authenticated) {
     return (
-      <div className="mx-auto max-w-md py-16 text-center">
-        <h1 className="text-2xl font-bold">{title}</h1>
-        <p className="mt-2 text-muted-foreground">{description}</p>
-        <Button size="lg" className="mt-6 h-10 px-5" onClick={() => login()}>
-          Ingresar con email, Google o wallet
+      <div className="mx-auto flex max-w-md flex-col items-center py-20 text-center">
+        <BrandMark className="h-10 w-[3.125rem]" />
+        <h1 className="mt-8">{title}</h1>
+        <p className="mt-3 t-lead">{description}</p>
+        <Button size="xl" className="mt-8" onClick={() => login()}>
+          Ingresar con tu email
         </Button>
+        <p className="mt-4 text-sm text-subtle">También puedes usar Google o tu wallet. Si es tu primera vez, creamos tu cuenta.</p>
       </div>
     );
   }

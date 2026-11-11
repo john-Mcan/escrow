@@ -1,6 +1,6 @@
 # Roadmap a producción
 
-Última actualización: 2026-11-09.
+Última actualización: 2026-11-11.
 
 Plan de trabajo desde el estado actual hasta el lanzamiento en Base Mainnet. Cada fase cierra con una revisión antes
 de pasar a la siguiente. Las casillas sirven para marcar avance.
@@ -88,8 +88,10 @@ Tienen plazos largos y sus respuestas pueden cambiar el producto.
   - [x] Depósito con wallet embebida: la ventana de firma de Privy fallaba (`Cannot destructure property 'method'
         of 's.signMessage'`) si la transacción se pedía antes de que terminara de cerrarse. Se agregó una pausa
         entre el permit y el depósito en `use-escrow-transactions.ts`.
-- [ ] Mostrar la dirección completa de la wallet con botón de copiar y el saldo de USDC. Hoy solo se ve abreviada, y
-      el usuario necesita la dirección para recibir USDC.
+- [x] Mostrar la dirección completa de la wallet con botón de copiar y el saldo de USDC. Hoy solo se ve abreviada, y
+      el usuario necesita la dirección para recibir USDC. Hecho en la pasada de la Fase 4 (2026-11-11): el menú de
+      cuenta muestra el saldo (con equivalente local) y "Recibir USDC" abre la dirección completa con QR; el depósito
+      muestra lo mismo cuando falta saldo y espera la llegada del USDC.
 - [ ] Quitar dependencias sin uso de `apps/web`: `@x402/core`, `@x402/evm` y `@x402/svm` (no se importan en ningún
       archivo).
 
@@ -113,9 +115,13 @@ Tienen plazos largos y sus respuestas pueden cambiar el producto.
 | Modal de Privy | `accentColor` `#14213d`, sin logo |
 | Emails | Fuente del sistema, wordmark en texto, colores de la paleta |
 
+**Pasada del 2026-11-11:** nombre provisional **extan**, tema oscuro, Figtree, isotipo de corchetes y una revisión
+de UX de todas las superficies. La guía quedó en [marca.md](marca.md).
+
 ### Decisiones
 
-- [ ] **Nombre:** confirmar "Hito" o elegir otro. Validar:
+- [ ] **Nombre:** confirmar "Hito" o elegir otro. Provisional desde el 2026-11-11: **extan** (`extan.io` disponible,
+      sin comprar). Falta validar:
   - dominio disponible;
   - búsqueda de marca registrada en los países objetivo (IMPI, INAPI, INPI, SIC…);
   - usuarios libres en redes;
@@ -126,63 +132,69 @@ Tienen plazos largos y sus respuestas pueden cambiar el producto.
   - uno de envío para emails (p. ej. `notificaciones.`) con SPF, DKIM y DMARC.
 
   Evaluar variantes defensivas.
-- [ ] **Tipografía:** mantener o cambiar el par actual. Requisitos:
+- [x] **Tipografía:** Figtree como única familia. Requisitos:
   - cifras tabulares para montos;
   - lectura cómoda en móvil;
   - acentos y ñ (y portugués);
   - licencia libre.
-- [ ] **Color:** paleta principal y colores semánticos del dinero con contraste AA. Decidir si hay modo oscuro en el
-      lanzamiento.
-- [ ] **Estilo:**
+- [x] **Color:** paleta principal y colores semánticos del dinero con contraste AA. Solo tema oscuro (fondo
+      `#08090B`, superficie `#151719`, texto `#F4F5F4`, esmeralda `#7DE7BB`); versión clara solo para emails.
+- [x] **Estilo:**
   - personalidad (financiero y sobrio vs. cercano y freelance);
   - radios, sombras y densidad;
   - iconografía (hoy lucide);
   - ilustración o fotografía.
-- [ ] **Logo:**
+- [x] **Logo:** isotipo de corchetes (provisto por el usuario, recreado en SVG).
   - isotipo + wordmark en SVG, en versiones color, monocromo y sobre fondo oscuro;
   - favicon, `apple-touch-icon` e icono de app;
   - imagen Open Graph base;
   - logo para el modal de Privy y para los emails.
-- [ ] **Voz y tono:** español neutro latinoamericano con tuteo (ya se usa) y un glosario fijo (hito, garantía,
-      liberar, reembolso, disputa) para que la app, los emails y los textos legales digan lo mismo.
+- [x] **Voz y tono:** español neutro latinoamericano con tuteo (ya se usa) y un glosario fijo (hito, garantía,
+      liberar, reembolso, disputa) para que la app, los emails y los textos legales digan lo mismo. Glosario en
+      [marca.md](marca.md#voz-y-glosario).
 
 **Proceso:** preparo 2 o 3 direcciones completas (tipografía, paleta, logo y una pantalla real aplicada) en una
 página para comparar. Eliges una, y la guía queda en `docs/marca.md`.
 
 ### Implementación
 
-- [ ] Tokens en `apps/web/src/app/globals.css` (colores, radios, escala tipográfica) y fuentes en `layout.tsx`.
-- [ ] Assets en `apps/web/public/` y `metadata` (iconos, imagen OG por defecto, `themeColor`).
-- [ ] Componentes `Brand` y `BrandMark` con el logo final.
-- [ ] Modal de Privy: logo, color de acento, tema y textos. La firma del permit hoy muestra el EIP-712 crudo, en
+- [x] Tokens en `apps/web/src/app/globals.css` (colores, radios, escala tipográfica) y fuentes en `layout.tsx`.
+- [x] Assets y `metadata`: `app/icon.svg`, `app/apple-icon.tsx`, `app/opengraph-image.tsx` y `themeColor`.
+- [x] Componentes `Brand` y `BrandMark` con el logo final (y `MarkGlyph` animado para los loaders).
+- [x] Modal de Privy: logo, color de acento, tema y textos. La firma del permit hoy muestra el EIP-712 crudo, en
       inglés ("Sign message") y con las direcciones cortadas: usar `useSignTypedData` de Privy con `uiOptions`
       (título, descripción y botón en español que expliquen "autorizas depositar X USDC en garantía").
-- [ ] Plantillas de email: encabezado con logo, colores y pie con los datos de la empresa.
+  - Con wallet embebida, el permit y las transacciones pasan por `useSignTypedData` / `useSendTransaction` de Privy
+    con `uiOptions` en español. **Volver a probar el depósito en Base Sepolia** (cambió la forma de firmar).
+  - Privy no permite traducir el resto de su ventana de login ("Submit", "Continue with a wallet").
+- [ ] Plantillas de email: encabezado con logo, colores y pie con los datos de la empresa. Logo y colores listos;
+      faltan los datos de la empresa.
 
 ### Repaso de consistencia de las superficies existentes
 
-- [ ] Landing (`/`)
-- [ ] Header y menú de usuario
-- [ ] Dashboard (`/dashboard`) y creación de cobros (`/dashboard/new`)
-- [ ] Checkout (`/pay/[id]`) en todos sus estados: sin fondos, en garantía, entregado, liberado, reembolsado, en
+- [x] Landing (`/`)
+- [x] Header y menú de usuario
+- [x] Dashboard (`/dashboard`) y creación de cobros (`/dashboard/new`)
+- [x] Checkout (`/pay/[id]`) en todos sus estados: sin fondos, en garantía, entregado, liberado, reembolsado, en
       disputa, resuelto
-- [ ] Panel de arbitraje (`/arbitration`)
-- [ ] 404, toasts y diálogos
-- [ ] Los 7 emails transaccionales
-- [ ] Accesibilidad (contraste, foco visible, lectores de pantalla) y diseño en móvil
+- [x] Panel de arbitraje (`/arbitration`)
+- [x] 404, toasts y diálogos
+- [x] Los 7 emails transaccionales
+- [ ] Accesibilidad (contraste, foco visible, lectores de pantalla) y diseño en móvil. Contraste AA en los tokens,
+      foco visible, `prefers-reduced-motion` y móvil revisados; falta una pasada con lector de pantalla.
 
 ### Hallazgos del recorrido en Base Sepolia (Fase 3, 2026-11-10)
 
 Notas del primer recorrido real (cliente y proveedor con wallet embebida de Privy) para la pasada de pulido UI/UX.
 
-- [ ] **Carga del checkout (`/pay/[id]`):** al recargar, nuestra información queda varios segundos en estado de
+- [x] **Carga del checkout (`/pay/[id]`):** al recargar, nuestra información queda varios segundos en estado de
       carga ("procesando") y recién después aparecen las acciones del hito (p. ej. "Liberar fondos"). Las acciones
       esperan a que Privy esté listo y a `/api/me`.
   - En desarrollo parte de la demora es la compilación bajo demanda de Next: `/api/me` tardó 7 s y el sync 12-18 s,
     pero el mismo sync repetido directo tarda 0,4-1 s. Medir con `next build && next start` antes de optimizar.
   - Mostrar el estado del acuerdo de inmediato (datos públicos), con un skeleton solo en la zona de acciones mientras
     se identifica al usuario.
-- [ ] **Ventanas de Privy:** salen en inglés ("Sign message", "Sign and continue", "Transaction complete"), muestran
+- [x] **Ventanas de Privy:** salen en inglés ("Sign message", "Sign and continue", "Transaction complete"), muestran
       datos técnicos (EIP-712, hex, direcciones cortadas) y tapan la información de nuestro sitio mientras el usuario
       decide.
   - Pasar `uiOptions` en español (título, descripción y botón) en cada firma y transacción: permit, depósito,
@@ -192,10 +204,11 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
     acciones. "Liberar fondos" ya lo hace; el depósito no.
   - Evaluar ocultar las ventanas de Privy con nuestra propia confirmación (`showWalletUIs: false`). Requiere apagar
     "enforce wallet UIs" en el dashboard de Privy y cuidar que la passkey siga pidiéndose al mover dinero.
+    **Pendiente:** por ahora se mantienen las ventanas de Privy, con textos en español y nuestro resumen antes.
 - [ ] **Overlay de errores de Next en desarrollo:** al depositar y al liberar aparece la advertencia de React
       "React does not recognize the `isActive` prop on a DOM element". Viene de componentes internos de `@privy-io/react-auth` 3.51.3, no de
       nuestro código. Solo pasa en desarrollo; revisar al actualizar Privy.
-- [ ] **Flujo de disputa:** hoy son pasos separados e innecesarios: "Abrir disputa" → confirmar el resumen → firmar en
+- [x] **Flujo de disputa:** hoy son pasos separados e innecesarios: "Abrir disputa" → confirmar el resumen → firmar en
       Privy → el diálogo se cierra con "Disputa abierta. Aporta tu evidencia." → hay que volver a hacer clic para
       abrir el formulario de evidencia y enviarlo. Unificarlo en un solo flujo:
   - Pedir la versión de los hechos (y el enlace opcional) en el mismo diálogo de "Abrir disputa", antes de firmar.
@@ -204,14 +217,15 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
     después de firmar.
   - Conservar el texto si la transacción falla o se rechaza, para no reescribirlo.
   - El primer envío de evidencia tardó 23 s en desarrollo (compilación de la ruta): revisar el indicador de carga.
-- [ ] **Panel de arbitraje (`/arbitration`):** "Conectar la hardware wallet del árbitro" es un botón `ghost` que se ve
+- [x] **Panel de arbitraje (`/arbitration`):** "Conectar la hardware wallet del árbitro" es un botón `ghost` que se ve
       como texto suelto, y en la prueba no se reconoció como botón. Además queda por debajo del recuadro de la Safe,
       que es lo que más destaca.
   - Dar jerarquía clara entre los dos caminos: firmar con la wallet conectada y ejecutar desde la Safe (copiar
     datos, lote para Transaction Builder y registrar el hash).
   - "Hardware wallet" confunde cuando el árbitro usa MetaMask: usar "Conectar la wallet del árbitro".
-- [ ] **Decisión de producto:** hoy el cliente puede "Liberar fondos" antes de que el proveedor suba el entregable (el
-      contrato lo permite). Decidir si el botón se muestra siempre o se destaca recién con el entregable.
+- [x] **Decisión de producto:** hoy el cliente puede "Liberar fondos" antes de que el proveedor suba el entregable (el
+      contrato lo permite). Decidir si el botón se muestra siempre o se destaca recién con el entregable. Resuelto en
+      la pasada: antes de la entrega es un botón secundario; con la entrega pasa a ser la acción principal.
 
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 

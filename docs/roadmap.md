@@ -272,14 +272,14 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
       externa y para las firmas. Si el cliente toca "Depositar" sin sesión, al ingresar se abre el depósito (también
       después de volver de Google).
 - [ ] **Probar el ingreso nuevo en Base Sepolia:**
-  - [x] email con código y usuario nuevo (`john.moya@live.cl`, 2026-11-12): Privy le creó la wallet embebida
+  - [x] email con código y usuario nuevo (2026-11-12): Privy le creó la wallet embebida
         `0x46e6…3f02` y quedó en el perfil;
   - [ ] Google;
   - [ ] wallet externa;
   - [ ] "Depositar" sin sesión.
 - [x] **Bug: perfil sin wallet tras crear la cuenta.** El navegador ve la wallet nueva un instante antes que la API
       de Privy que consulta el servidor; si la sincronización llegaba en ese momento, el perfil quedaba sin wallet
-      para siempre (le pasó a `john.mc+test@upg.cl` el 2026-11-11) y no podía crear links. Ahora `useMe` reintenta
+      para siempre (le pasó a una cuenta de prueba el 2026-11-11) y no podía crear links. Ahora `useMe` reintenta
       mientras el navegador ve una wallet que el perfil no tiene, y el servidor vuelve a leer de Privy cualquier
       perfil sin wallet.
 - [x] **Formato de números:** USDC y CLP con el formato chileno, punto de miles y coma decimal (`2.500,00 USDC`,

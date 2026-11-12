@@ -57,11 +57,11 @@ La creó Claude con `cast wallet new` para desplegar y repartir ETH de gas. No t
 
 | Rol | Login | Wallet | Saldo (2026-11-10) | Navegador sugerido |
 |---|---|---|---|---|
-| Proveedor | `john.mc+proveedor@upg.cl` | `0xCCD9534412af6f21B3608870ce665e190aE028aA` (embebida) | 1,8715 USDC · ≈ 0,001 ETH | Edge u otro perfil de Chrome |
-| Cliente | `john.mc+cliente@upg.cl` | `0x0880093F0BE970815D8e22d7DCA8e69f8443203B` (embebida) | 18,10 USDC · ≈ 0,001 ETH | Ventana de incógnito |
-| Árbitro | `john.mc@upg.cl` (`ARBITRATION_ADMIN_EMAILS`) | Firma con Hito Árbitro de MetaMask | — | Perfil "Hito pruebas" |
+| Proveedor | `<tu-email>+proveedor@…` | `0xCCD9534412af6f21B3608870ce665e190aE028aA` (embebida) | 1,8715 USDC · ≈ 0,001 ETH | Edge u otro perfil de Chrome |
+| Cliente | `<tu-email>+cliente@…` | `0x0880093F0BE970815D8e22d7DCA8e69f8443203B` (embebida) | 18,10 USDC · ≈ 0,001 ETH | Ventana de incógnito |
+| Árbitro | `<tu-email>` (`ARBITRATION_ADMIN_EMAILS`) | Firma con Hito Árbitro de MetaMask | — | Perfil "Hito pruebas" |
 
-Los códigos de login de los tres emails llegan al buzón de `john.mc@upg.cl`.
+Los tres son alias `+` del mismo correo, así que todos los códigos de login llegan a un solo buzón.
 
 ## Acuerdos creados
 
@@ -74,7 +74,7 @@ Los códigos de login de los tres emails llegan al buzón de `john.mc@upg.cl`.
 - **`.env`** (raíz, fuera de git): App ID y secret de Privy, RPC de Alchemy, keys de Supabase local, direcciones del
   contrato y de las cuentas, y `ARBITRATION_ADMIN_EMAILS`.
 - **`.env.anvil`** (fuera de git): copia del entorno Anvil (31337) anterior. Para volver a Anvil, cópialo sobre `.env`
-  y sigue el README.
+  y sigue [desarrollo.md](desarrollo.md).
 - **Keystore y contraseña del deployer:** `%USERPROFILE%\.foundry\`.
 - **Frase de recuperación de MetaMask:** solo la tienes tú. No va en ningún archivo.
 

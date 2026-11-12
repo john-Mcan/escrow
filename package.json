@@ -2,6 +2,7 @@
   "name": "escrow",
   "private": true,
   "description": "Escrow no-custodio por hitos en USDC sobre Base",
+  "license": "UNLICENSED",
   "packageManager": "pnpm@10.6.5",
   "engines": {
     "node": ">=22.0.0",

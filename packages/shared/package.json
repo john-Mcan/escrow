@@ -2,6 +2,7 @@
   "name": "@escrow/shared",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "ABIs tipados, direcciones por chainId, esquemas Zod y utilidades compartidas",
   "type": "module",
   "sideEffects": false,

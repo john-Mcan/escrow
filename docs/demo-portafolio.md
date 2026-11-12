@@ -232,8 +232,14 @@ sesión).
 
 ## 11. README como caso de estudio (Claude)
 
-El README pasa a ser la portada del proyecto para quien llega desde tu portafolio. Las instrucciones de desarrollo se
-mueven a `docs/desarrollo.md`.
+**Adelantado el 2026-11-12:** `README.md` en inglés y `README.es.md` en español, con capturas de localhost
+(`docs/images/`), diagrama, decisiones técnicas, calidad y licencia. Las instrucciones de desarrollo pasaron a
+[desarrollo.md](desarrollo.md) y el diseño a [arquitectura.md](arquitectura.md). Al terminar el paso 10 falta:
+
+- el link a la demo (hoy dice "pronto") y la sección *Cómo probar la demo*;
+- opcional: un GIF corto del depósito.
+
+Contenido planificado:
 
 - **Qué es y qué problema resuelve**, en un párrafo, con links a la demo, al contrato verificado y al informe de
   análisis estático.
@@ -258,7 +264,9 @@ mueven a `docs/desarrollo.md`.
 - **Acuerdo de ejemplo:** un `/pay/...` con hitos en distintos estados, enlazado desde el README, para ver el checkout
   sin crear cuenta.
 - **Repositorio público:** hoy es privado. Antes de abrirlo:
-  - reemplazar los emails personales de las guías de prueba (por ejemplo, `entorno-pruebas-sepolia.md`);
+  - ~~reemplazar los emails personales de las guías de prueba~~ (hecho el 2026-11-12; siguen en el historial de
+    git y en el autor de los commits);
+  - ~~licencia~~: todos los derechos reservados, con el contrato en MIT (`LICENSE`, 2026-11-12);
   - revisar el historial completo con [gitleaks](https://github.com/gitleaks/gitleaks) para confirmar que nunca se
     subió un secreto.
 - **`noindex`**, si más adelante no quieres que la demo aparezca en buscadores.

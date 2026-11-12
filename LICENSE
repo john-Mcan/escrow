@@ -1,0 +1,9 @@
+Copyright (c) 2026 John Moya C. All rights reserved.
+
+This repository is published so that its code can be read and evaluated (for example, as a portfolio piece).
+No license is granted to copy, modify, distribute, sublicense, or use this software or any part of it, for any
+purpose, without the prior written permission of the copyright holder.
+
+Exception: the smart contracts in `packages/contracts` are licensed under the MIT License (see
+`packages/contracts/LICENSE`), as declared in their SPDX headers. The deployed contract's source code is verified
+under that license on public block explorers.

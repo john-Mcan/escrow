@@ -9,6 +9,7 @@ export class ApiError extends Error {
     readonly code: string,
     message: string,
     readonly details?: unknown,
+    readonly headers?: Record<string, string>,
   ) {
     super(message);
     this.name = "ApiError";
@@ -43,7 +44,10 @@ export function withErrorHandling<Args extends unknown[]>(handler: (...args: Arg
       return await handler(...args);
     } catch (error) {
       if (error instanceof ApiError) {
-        return json({ error: { code: error.code, message: error.message, details: error.details } }, { status: error.status });
+        return json(
+          { error: { code: error.code, message: error.message, details: error.details } },
+          { status: error.status, headers: error.headers },
+        );
       }
       console.error("[api] error no controlado", error);
       return json({ error: { code: "internal_error", message: "Ocurrió un error inesperado. Intenta de nuevo." } }, { status: 500 });

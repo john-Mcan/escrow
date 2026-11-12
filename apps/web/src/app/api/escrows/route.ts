@@ -6,6 +6,7 @@ import { getPublicClient } from "@/lib/server/chain";
 import { deliverNotification } from "@/lib/server/email/notifications";
 import { getServerEnv } from "@/lib/server/env";
 import { ApiError, assertDb, json, parseJsonBody, withErrorHandling } from "@/lib/server/http";
+import { enforceRateLimit } from "@/lib/server/rate-limit";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 
 export const GET = withErrorHandling(async (request: Request) => {
@@ -47,6 +48,8 @@ export const POST = withErrorHandling(async (request: Request) => {
   if (data.payerEmail && data.payerEmail === user.email) {
     throw new ApiError(422, "self_invite", "No puedes enviarte un cobro a ti mismo.");
   }
+  // Cada link puede enviar una invitación a cualquier email: el límite protege la reputación del dominio de envío.
+  await enforceRateLimit("create_escrow", user.id);
 
   // El límite vigente vive on-chain (configurable por la Safe owner): evita crear links imposibles de fondear.
   const total = data.milestones.reduce((sum, milestone) => sum + milestone.amount, 0n);

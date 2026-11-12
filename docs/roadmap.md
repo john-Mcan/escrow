@@ -1,6 +1,6 @@
 # Roadmap a producción
 
-Última actualización: 2026-11-11.
+Última actualización: 2026-11-12.
 
 Plan de trabajo desde el estado actual hasta el lanzamiento en Base Mainnet. Cada fase cierra con una revisión antes
 de pasar a la siguiente. Las casillas sirven para marcar avance.
@@ -27,7 +27,7 @@ de definiciones legales y de proveedores.
   de fee y árbitro por acuerdo, con límite de 5.000 USDC y 20 hitos. Tiene 55 tests (con fuzzing) y 100% de
   cobertura.
 - **Base de datos:** RLS, logs append-only, checkout público sin datos sensibles e idempotencia por
-  `(tx_hash, log_index)`. Tiene 39 tests pgTAP.
+  `(tx_hash, log_index)`. Tiene 47 tests pgTAP.
 - **Backend:** verifica el JWT de Privy en el servidor. La reconciliación lee la transacción desde su propio RPC (no
   confía en el frontend). Incluye entregables, evidencias, listado de disputas y 7 emails con claves de idempotencia.
 - **Frontend:** landing, dashboard, creación de cobros, checkout `/pay`, panel de arbitraje, 404, menú de usuario y
@@ -92,8 +92,8 @@ Tienen plazos largos y sus respuestas pueden cambiar el producto.
       el usuario necesita la dirección para recibir USDC. Hecho en la pasada de la Fase 4 (2026-11-11): el menú de
       cuenta muestra el saldo (con equivalente local) y "Recibir USDC" abre la dirección completa con QR; el depósito
       muestra lo mismo cuando falta saldo y espera la llegada del USDC.
-- [ ] Quitar dependencias sin uso de `apps/web`: `@x402/core`, `@x402/evm` y `@x402/svm` (no se importan en ningún
-      archivo).
+- [x] Quitar dependencias sin uso de `apps/web`: `@x402/core`, `@x402/evm` y `@x402/svm` (no se importan en ningún
+      archivo). Hecho el 2026-11-12; siguen en el lockfile como dependencias opcionales de Privy y Coinbase.
 
 **Cierre:** el recorrido de la guía pasa completo y los problemas encontrados quedan corregidos o anotados.
 
@@ -120,8 +120,8 @@ de UX de todas las superficies. La guía quedó en [marca.md](marca.md).
 
 ### Decisiones
 
-- [ ] **Nombre:** confirmar "Hito" o elegir otro. Provisional desde el 2026-11-11: **extan** (`extan.io` disponible,
-      sin comprar). Falta validar:
+- [x] **Nombre:** **extan**, decidido el 2026-11-12 (reemplaza a "Hito"). `extan.io` está disponible y falta
+      comprarlo. Antes de producción conviene validar:
   - dominio disponible;
   - búsqueda de marca registrada en los países objetivo (IMPI, INAPI, INPI, SIC…);
   - usuarios libres en redes;
@@ -300,6 +300,9 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
   - lint, typecheck y build;
   - auditoría de dependencias.
 - [ ] **Hosting** (Vercel u otro) con dominio propio y deploys de preview por PR.
+- [ ] **Demo de portafolio** en `demo.extan.io` sobre Base Sepolia: plan paso a paso en
+      [demo-portafolio.md](demo-portafolio.md). Adelanta parte de esta fase (hosting, servicios en la nube, límite de
+      solicitudes, páginas de error) y el gas patrocinado de la Fase 3.
 - [ ] **Staging** en `staging.<dominio>` sobre Base Sepolia, con servicios propios:
   - app de Privy;
   - proyecto de Supabase (São Paulo);
@@ -316,16 +319,19 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
     - resoluciones firmadas desde la Safe sin registrar;
     - interacciones con el contrato fuera de la app;
     - navegadores que no vuelven.
-- [ ] **Páginas de error:** `error.tsx`, `global-error.tsx` y `loading.tsx`, con la marca. Hoy un error de render
-      muestra la pantalla genérica de Next.
+- [x] **Páginas de error:** `error.tsx`, `global-error.tsx` y `loading.tsx`, con la marca (2026-11-12).
 
 ### Seguridad
 
-- [ ] **Rate limiting** (p. ej. Upstash o el WAF del hosting) en:
-  - `POST /api/escrow/sync`: es pública y puede quedar hasta 60 s esperando un recibo. Además, acortar la espera
-    para hashes desconocidos.
+- [x] **Rate limiting** (2026-11-12): contadores por ventana fija en Postgres (`0003_rate_limits.sql`), sin
+      servicios extra. Límites en [demo-portafolio.md](demo-portafolio.md), paso 4:
+  - `POST /api/escrow/sync`: pública, se cuenta por IP. La espera del recibo bajó de 30 s a 10 s.
   - `POST /api/escrows`: envía la invitación a cualquier email, así que se puede usar para spam.
   - Entregables y evidencias.
+  - Antes de mainnet, evaluar sumar el WAF del hosting para tráfico masivo por IP.
+- [x] **Análisis estático del contrato** con Slither (2026-11-12): cero hallazgos en `MilestoneEscrow.sol`. Informe en
+      [analisis-estatico.md](analisis-estatico.md). Repetirlo si el contrato cambia.
+- [ ] **Contrato verificado** en los exploradores: Blockscout y Sourcify listos (2026-11-12); falta Basescan.
 - [ ] **Headers:**
   - CSP con las directivas que exigen Privy y WalletConnect;
   - HSTS;

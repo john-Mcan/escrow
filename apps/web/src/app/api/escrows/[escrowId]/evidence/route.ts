@@ -2,6 +2,7 @@ import { evidenceSchema } from "@escrow/shared";
 import { requireUser } from "@/lib/server/auth";
 import { participantRole, requireEscrowRecord, requireMilestone } from "@/lib/server/escrows";
 import { ApiError, assertDb, json, parseJsonBody, withErrorHandling } from "@/lib/server/http";
+import { enforceRateLimit } from "@/lib/server/rate-limit";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 
 /** Evidencia para el árbitro. Solo participantes y solo en hitos en disputa; la tabla es append-only. */
@@ -16,6 +17,7 @@ export const POST = withErrorHandling(async (request: Request, { params }: { par
   if (milestone.status !== "disputed") {
     throw new ApiError(409, "invalid_status", "Solo puedes aportar evidencia en hitos en disputa.");
   }
+  await enforceRateLimit("evidence", user.id);
 
   const evidence = assertDb(
     await getSupabaseAdmin()

@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import { publicEnv } from "@/lib/env";
+import { figtree } from "@/lib/fonts";
 import "./globals.css";
-
-const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.NEXT_PUBLIC_APP_URL),

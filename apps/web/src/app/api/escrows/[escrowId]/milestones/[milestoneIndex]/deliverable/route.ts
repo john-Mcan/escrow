@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/server/auth";
 import { deliverNotification } from "@/lib/server/email/notifications";
 import { participantRole, refreshEscrowStatus, requireEscrowRecord, requireMilestone } from "@/lib/server/escrows";
 import { ApiError, assertDb, json, parseJsonBody, withErrorHandling } from "@/lib/server/http";
+import { enforceRateLimit } from "@/lib/server/rate-limit";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 
 type Params = { params: Promise<{ escrowId: string; milestoneIndex: string }> };
@@ -25,6 +26,7 @@ export const POST = withErrorHandling(async (request: Request, { params }: Param
   }
 
   const data = await parseJsonBody(request, deliverableSchema);
+  await enforceRateLimit("deliverable", user.id);
   const supabase = getSupabaseAdmin();
 
   const updated = assertDb(

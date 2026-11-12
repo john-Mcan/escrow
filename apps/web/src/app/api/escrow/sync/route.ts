@@ -5,8 +5,9 @@ import { deliverNotifications } from "@/lib/server/email/notifications";
 import { syncEscrowTransaction } from "@/lib/server/escrow-sync";
 import { getPublicCheckout } from "@/lib/server/escrows";
 import { json, parseJsonBody, withErrorHandling } from "@/lib/server/http";
+import { clientIpSubject, enforceRateLimit } from "@/lib/server/rate-limit";
 
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 /**
  * Reconciliación on-chain. No requiere sesión: el frontend solo aporta un `txHash` y todo lo demás se verifica
@@ -14,6 +15,7 @@ export const maxDuration = 60;
  */
 export const POST = withErrorHandling(async (request: Request) => {
   const { escrowId, txHash } = await parseJsonBody(request, syncRequestSchema);
+  await enforceRateLimit("sync", clientIpSubject(request));
   const { applied, notifications } = await syncEscrowTransaction(escrowId, txHash);
 
   if (notifications.length > 0) {

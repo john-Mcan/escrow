@@ -30,9 +30,14 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   webpack(config) {
-    // Dependencias opcionales de WalletConnect/MetaMask SDK que no aplican en web.
+    // Dependencias opcionales de WalletConnect/MetaMask SDK que no aplican en web. Privy importa la wallet de
+    // Solana para Farcaster dentro de un try/catch, solo en mini apps de Farcaster.
     config.externals.push("pino-pretty", "lokijs", "encoding");
-    config.resolve.fallback = { ...config.resolve.fallback, "@react-native-async-storage/async-storage": false };
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      "@react-native-async-storage/async-storage": false,
+      "@farcaster/mini-app-solana": false,
+    };
     return config;
   },
 };

@@ -109,8 +109,11 @@ async function waitForReceipt(txHash: Hex) {
   }
   if (!known) throw new ApiError(404, "tx_not_found", "No encontramos esa transacción en la red.");
 
+  // El frontend llama al sync después de ver el recibo en su RPC: aquí solo se cubre el desfase entre nodos. Una
+  // espera corta evita que un hash pendiente ajeno al contrato retenga la función. Si vence, el hash queda guardado
+  // en el navegador y la vista del acuerdo reintenta el sync al volver a abrirse.
   try {
-    return await client.waitForTransactionReceipt({ hash: txHash, confirmations: 1, timeout: 30_000 });
+    return await client.waitForTransactionReceipt({ hash: txHash, confirmations: 1, timeout: 10_000 });
   } catch (error) {
     if (error instanceof WaitForTransactionReceiptTimeoutError || error instanceof TransactionReceiptNotFoundError) {
       throw new ApiError(409, "tx_pending", "La transacción aún no se confirma. Reintenta en unos segundos.");

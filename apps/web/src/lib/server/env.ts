@@ -24,6 +24,8 @@ const serverEnvSchema = z.object({
         .map((email) => email.trim().toLowerCase())
         .filter(Boolean),
     ),
+  /** Lo envía el cron de Vercel como `Authorization: Bearer <CRON_SECRET>`. Sin valor, la ruta del cron es abierta. */
+  CRON_SECRET: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema> & typeof publicEnv & { RPC_URL: string };
@@ -41,6 +43,7 @@ export function getServerEnv(): ServerEnv {
     ANVIL_RPC_URL: process.env.ANVIL_RPC_URL || undefined,
     RESEND_API_KEY: process.env.RESEND_API_KEY || undefined,
     EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO || undefined,
+    CRON_SECRET: process.env.CRON_SECRET || undefined,
   });
   if (!parsed.success) {
     throw new Error(`Variables de entorno de servidor inválidas:\n${z.prettifyError(parsed.error)}`);

@@ -39,7 +39,7 @@ pnpm --filter @escrow/contracts gas
 # Base de datos local
 pnpm db:start                            # Postgres + API en http://127.0.0.1:55321
 pnpm db:reset                            # re-aplica migraciones
-supabase test db                         # 39 tests pgTAP (constraints, RLS y funciones)
+supabase test db                         # 47 tests pgTAP (constraints, RLS, funciones y límites)
 pnpm db:lint
 ```
 

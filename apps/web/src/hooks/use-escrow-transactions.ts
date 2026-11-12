@@ -52,7 +52,7 @@ interface Call {
   data: Hex;
 }
 
-const PENDING_KEY = (escrowId: string) => `hito:pending-sync:${escrowId}`;
+const PENDING_KEY = (escrowId: string) => `extan:pending-sync:${escrowId}`;
 
 /**
  * Pausa entre la firma del permit y la transacción. Privy cierra su ventana de firma con retraso; si la siguiente
@@ -365,3 +365,5 @@ export function useEscrowTransactions(escrowId: string) {
       milestoneCall("raiseDispute", onchainEscrowId, index, copy),
   };
 }
+
+export type EscrowTransactions = ReturnType<typeof useEscrowTransactions>;

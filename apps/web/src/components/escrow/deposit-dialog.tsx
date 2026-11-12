@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReceiveUsdc } from "@/components/wallet/receive-usdc";
-import { InsufficientBalanceError, type useEscrowTransactions } from "@/hooks/use-escrow-transactions";
+import { type EscrowTransactions, InsufficientBalanceError } from "@/hooks/use-escrow-transactions";
 import { useUsdcBalance } from "@/hooks/use-usdc-balance";
 import { appChain } from "@/lib/env";
 import { describeTxError } from "@/lib/tx-errors";
@@ -36,7 +36,7 @@ export function DepositDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   checkout: PublicCheckout;
-  tx: ReturnType<typeof useEscrowTransactions>;
+  tx: EscrowTransactions;
   providerName: string;
 }) {
   const [phase, setPhase] = useState<Phase>("review");

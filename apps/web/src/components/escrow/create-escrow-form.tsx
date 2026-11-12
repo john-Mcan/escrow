@@ -8,56 +8,29 @@ import {
   formatUsdc,
   MAX_MILESTONES,
   milestoneEscrowAbi,
-  parseUsdc,
-  USDC_INPUT_HINT,
-  USDC_INPUT_PATTERN,
 } from "@escrow/shared";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon, ArrowUpRightIcon, CalendarIcon, PlusIcon, TextIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useReadContract } from "wagmi";
 import { DetailRow } from "@/components/disclosure";
-import { MilestoneNode } from "@/components/escrow/milestone-track";
-import { ShareLink } from "@/components/escrow/share-link";
-import { MarkGlyph, Spinner } from "@/components/loaders";
-import { LocalAmount, LocalAmountPicker, Usdc } from "@/components/money";
-import { Reveal, ShineBorder } from "@/components/motion";
+import { AddOptional, Field, Panel } from "@/components/escrow/form-fields";
+import { type CreatedLink, LinkCreated } from "@/components/escrow/link-created";
+import { emptyMilestone, type MilestoneDraft, MilestoneDraftFields, safeAmount } from "@/components/escrow/milestone-draft-fields";
+import { Spinner } from "@/components/loaders";
+import { LocalAmountPicker, Usdc } from "@/components/money";
+import { Reveal } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/use-api";
 import { useMe } from "@/hooks/use-me";
 import type { CreateEscrowResponse, MeResponse } from "@/lib/api-types";
 import { appChain, escrowContractAddress } from "@/lib/env";
-import { formatDate } from "@/lib/format";
 import { describeTxError } from "@/lib/tx-errors";
 import { cn } from "@/lib/utils";
-
-interface MilestoneDraft {
-  key: number;
-  title: string;
-  description: string;
-  amount: string;
-  dueDate: string;
-  showDetail: boolean;
-}
-
-let nextKey = 1;
-const emptyMilestone = (): MilestoneDraft => ({
-  key: nextKey++,
-  title: "",
-  description: "",
-  amount: "",
-  dueDate: "",
-  showDetail: false,
-});
-
-function safeAmount(value: string): bigint {
-  return USDC_INPUT_PATTERN.test(value.trim()) ? parseUsdc(value) : 0n;
-}
 
 /**
  * Crear un link de cobro en tres decisiones: quién cobra (precargado), qué se cobra y cuánto por hito. Lo opcional
@@ -72,7 +45,7 @@ export function CreateEscrowForm() {
   const [showDescription, setShowDescription] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, setPending] = useState(false);
-  const [created, setCreated] = useState<(CreateEscrowResponse & { title: string; total: bigint }) | null>(null);
+  const [created, setCreated] = useState<CreatedLink | null>(null);
 
   useEffect(() => {
     if (me?.displayName && !displayName) setDisplayName(me.displayName);
@@ -154,36 +127,7 @@ export function CreateEscrowForm() {
     }
   }
 
-  if (created) {
-    return (
-      <div className="mx-auto max-w-xl space-y-8 py-4">
-        <div className="space-y-5">
-          <MarkGlyph state="done" className="h-10 w-[3.125rem]" />
-          <div className="space-y-2">
-            <h1>Tu link de cobro está listo</h1>
-            <p className="t-lead">
-              {created.invitationSent
-                ? "Ya le enviamos la invitación a tu cliente. También puedes compartirlo por donde conversan."
-                : "Envíalo por donde conversas con tu cliente."}{" "}
-              Te avisaremos por email cuando deposite.
-            </p>
-          </div>
-        </div>
-        <ShareLink url={created.url} title={created.title} total={created.total} providerName={displayName} />
-        <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-border pt-6">
-          <Button asChild variant="ghost" className="group/see -ml-4">
-            <Link href={`/pay/${created.shortCode}`}>
-              Ver como lo verá tu cliente
-              <ArrowUpRightIcon className="transition-transform duration-200 group-hover/see:translate-x-0.5 group-hover/see:-translate-y-0.5" />
-            </Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link href="/dashboard">Volver a mis acuerdos</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (created) return <LinkCreated created={created} providerName={displayName} />;
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_21rem]">
@@ -262,102 +206,16 @@ export function CreateEscrowForm() {
           )}
           <ol className="-mt-1 divide-y divide-border">
             {milestones.map((milestone, index) => (
-              <li key={milestone.key} className="space-y-4 py-6 first:pt-0 animate-in fade-in-0 slide-in-from-top-1 duration-300">
-                <div className="flex min-h-8 items-center justify-between gap-3">
-                  <h3 className="flex items-center gap-3 text-[0.9375rem]">
-                    <MilestoneNode status={safeAmount(milestone.amount) > 0n ? "funded" : "pending"} />
-                    Hito {index + 1}
-                  </h3>
-                  {!single && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground"
-                      onClick={() => setMilestones((current) => current.filter((m) => m.key !== milestone.key))}
-                    >
-                      <XIcon /> Quitar
-                    </Button>
-                  )}
-                </div>
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_11rem]">
-                  <Field
-                    label="Qué entregas"
-                    htmlFor={`m-${milestone.key}-title`}
-                    error={errors[`milestones.${index}.title`]}
-                  >
-                    <Input
-                      id={`m-${milestone.key}-title`}
-                      value={milestone.title}
-                      maxLength={140}
-                      placeholder={single ? "Igual que el nombre del trabajo" : "Diseño de la página principal"}
-                      onChange={(e) => update(milestone.key, { title: e.target.value })}
-                      aria-invalid={!!errors[`milestones.${index}.title`]}
-                    />
-                  </Field>
-                  <Field
-                    label="Monto en USDC"
-                    htmlFor={`m-${milestone.key}-amount`}
-                    error={errors[`milestones.${index}.amount`]}
-                    hint={safeAmount(milestone.amount) > 0n && <LocalAmount amount={safeAmount(milestone.amount)} className="block text-right" />}
-                  >
-                    <Input
-                      id={`m-${milestone.key}-amount`}
-                      value={milestone.amount}
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      className="amount text-right text-base font-medium"
-                      onChange={(e) => {
-                        update(milestone.key, { amount: e.target.value });
-                        if (USDC_INPUT_PATTERN.test(e.target.value.trim())) setFieldError(`milestones.${index}.amount`, null);
-                      }}
-                      onBlur={(e) => {
-                        // Al salir del campo, el monto queda escrito como se mostrará ("2500" -> "2.500,00"); lo
-                        // ambiguo ("2.5") se marca ahí mismo, antes de crear el link.
-                        const raw = e.currentTarget.value.trim();
-                        if (!raw) return;
-                        if (USDC_INPUT_PATTERN.test(raw)) update(milestone.key, { amount: formatUsdc(parseUsdc(raw)) });
-                        else setFieldError(`milestones.${index}.amount`, USDC_INPUT_HINT);
-                      }}
-                      aria-invalid={!!errors[`milestones.${index}.amount`]}
-                    />
-                  </Field>
-                </div>
-                {milestone.showDetail && (
-                  <Field
-                    label="Detalle (opcional)"
-                    htmlFor={`m-${milestone.key}-description`}
-                    hint="Qué incluye la entrega, en qué formato o cuántas revisiones."
-                  >
-                    <Textarea
-                      id={`m-${milestone.key}-description`}
-                      value={milestone.description}
-                      maxLength={5000}
-                      rows={2}
-                      autoFocus
-                      className="min-h-16"
-                      onChange={(e) => update(milestone.key, { description: e.target.value })}
-                    />
-                  </Field>
-                )}
-                <div className="-ml-3 flex flex-wrap items-center gap-x-1 gap-y-1">
-                  {!milestone.showDetail && (
-                    <AddOptional onClick={() => update(milestone.key, { showDetail: true })} icon={<TextIcon />}>
-                      Agregar detalle
-                    </AddOptional>
-                  )}
-                  <DueDatePicker
-                    id={`m-${milestone.key}-due`}
-                    value={milestone.dueDate}
-                    onChange={(dueDate) => update(milestone.key, { dueDate })}
-                  />
-                </div>
-                {errors[`milestones.${index}.dueDate`] && (
-                  <Reveal>
-                    <p className="text-sm text-destructive">{errors[`milestones.${index}.dueDate`]}</p>
-                  </Reveal>
-                )}
-              </li>
+              <MilestoneDraftFields
+                key={milestone.key}
+                milestone={milestone}
+                index={index}
+                single={single}
+                errors={errors}
+                onChange={(patch) => update(milestone.key, patch)}
+                onRemove={() => setMilestones((current) => current.filter((m) => m.key !== milestone.key))}
+                onAmountError={(message) => setFieldError(`milestones.${index}.amount`, message)}
+              />
             ))}
           </ol>
           <button
@@ -405,126 +263,5 @@ export function CreateEscrowForm() {
         </div>
       </aside>
     </form>
-  );
-}
-
-/** Grupo de campos en una superficie propia: un título, una línea que explica para qué sirve y los campos. */
-function Panel({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
-  const id = `panel-${title.toLowerCase().replace(/\s+/g, "-")}`;
-  return (
-    <section aria-labelledby={id} className="space-y-6 rounded-2xl border border-border bg-surface p-6 surface-edge sm:p-8">
-      <div className="space-y-1">
-        <h2 id={id}>{title}</h2>
-        {description && <p className="text-muted-foreground">{description}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function AddOptional({ onClick, children, icon }: { onClick: () => void; children: ReactNode; icon?: ReactNode }) {
-  return (
-    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={onClick}>
-      {icon ?? <PlusIcon />} {children}
-    </Button>
-  );
-}
-
-/** Hoy en la zona del navegador, como `YYYY-MM-DD` (el mínimo del calendario). */
-function todayIso(): string {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-}
-
-/**
- * Fecha de entrega como acción secundaria: un botón que muestra la fecha ya escrita ("17 nov 2026") y abre el
- * calendario del sistema. El `<input type="date">` queda oculto bajo el botón para que el calendario se ancle ahí.
- */
-function DueDatePicker({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  function openPicker() {
-    const input = inputRef.current;
-    if (!input) return;
-    try {
-      input.showPicker();
-    } catch {
-      input.focus();
-    }
-  }
-
-  return (
-    <div className="relative inline-flex items-center">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={openPicker}
-        className={value ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
-      >
-        <CalendarIcon />
-        {value ? (
-          <span>
-            Entrega estimada: <span className="font-medium">{formatDate(value)}</span>
-          </span>
-        ) : (
-          "Fecha de entrega"
-        )}
-      </Button>
-      {value && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="text-muted-foreground hover:text-foreground"
-          onClick={() => onChange("")}
-          aria-label="Quitar la fecha de entrega"
-        >
-          <XIcon />
-        </Button>
-      )}
-      <input
-        ref={inputRef}
-        id={id}
-        type="date"
-        min={todayIso()}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-3 size-px opacity-0 [color-scheme:dark]"
-      />
-    </div>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  error,
-  hint,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  error?: string;
-  hint?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      <div className="group/field relative rounded-[10px]">
-        {children}
-        <ShineBorder className="opacity-0 transition-opacity duration-200 group-focus-within/field:opacity-100" />
-      </div>
-      {error ? (
-        <Reveal>
-          <p className="text-sm text-destructive">{error}</p>
-        </Reveal>
-      ) : hint ? (
-        <div className="text-sm text-muted-foreground">{hint}</div>
-      ) : null}
-    </div>
   );
 }

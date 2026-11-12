@@ -14,7 +14,7 @@ import { AddressLink, TxLink } from "@/components/escrow/tx-link";
 import { LocalAmountPicker, Usdc } from "@/components/money";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { useEscrowTransactions } from "@/hooks/use-escrow-transactions";
+import type { EscrowTransactions } from "@/hooks/use-escrow-transactions";
 import { useMe } from "@/hooks/use-me";
 import { appChain, escrowContractAddress, publicEnv } from "@/lib/env";
 import { CHAIN_LABELS } from "@/lib/format";
@@ -37,7 +37,7 @@ export function CheckoutSummary({
 }: {
   checkout: PublicCheckout;
   role: ViewerRole;
-  tx: ReturnType<typeof useEscrowTransactions>;
+  tx: EscrowTransactions;
   identityPending: boolean;
   providerName: string;
 }) {

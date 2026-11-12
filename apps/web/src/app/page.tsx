@@ -1,6 +1,5 @@
 import { ArrowDownIcon, GlobeIcon, HandshakeIcon, HardHatIcon, LayersIcon } from "lucide-react";
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { Disclosure } from "@/components/disclosure";
 import { MilestoneNode } from "@/components/escrow/milestone-track";
 import { CurrencyFlow } from "@/components/landing/currency-flow";
@@ -73,12 +72,6 @@ const PROMISES = [
   },
 ];
 
-/** El mar se funde con el fondo hacia abajo, antes de la siguiente sección. */
-const SEA_MASK: CSSProperties = {
-  maskImage: "linear-gradient(#000 55%, transparent)",
-  WebkitMaskImage: "linear-gradient(#000 55%, transparent)",
-};
-
 export default function HomePage() {
   return (
     <>
@@ -86,31 +79,50 @@ export default function HomePage() {
           svh y no dvh: en iOS dvh cambia al esconderse la barra del navegador y el hero saltaría al hacer scroll.
           Se resta el header fijo (h-16 + 1px de borde). */}
       <section className="relative isolate flex min-h-[calc(100svh-4rem-1px)] items-center overflow-hidden">
-        {/* Atenuado para que el mar acompañe y no compita con el titular. */}
-        <SeaBackground className="absolute inset-x-0 top-0 -z-10 h-full max-h-[calc(100svh-4rem-1px)] opacity-80" style={SEA_MASK} />
+        {/* En escritorio se atenúa para que el mar acompañe y no compita con el titular; en móvil queda entre el texto
+            y los botones, sin nada encima, y se deja completo. */}
+        <SeaBackground
+          horizonBelow="[data-sea-horizon]"
+          className="absolute inset-x-0 top-0 -z-10 h-full max-h-[calc(100svh-4rem-1px)] [mask-image:linear-gradient(#000_75%,transparent)] lg:opacity-80 lg:[mask-image:linear-gradient(#000_55%,transparent)]"
+        />
         {/* En escritorio, más aire abajo que arriba: el centro geométrico se percibe bajo y así el grupo sube ~40px. */}
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-20 lg:pt-10 lg:pb-30">
-          {/* Velo detrás del texto: el mar se sigue viendo alrededor sin ensuciar la lectura. */}
-          <div className="relative max-w-xl before:absolute before:-left-4 before:w-screen sm:before:-left-6 before:-inset-y-16 before:-z-10 before:bg-[linear-gradient(transparent,rgb(8_9_11/0.8)_15%,rgb(8_9_11/0.8)_85%,transparent)] lg:before:-inset-x-20 lg:before:w-auto lg:before:bg-[radial-gradient(closest-side,rgb(8_9_11/0.82)_35%,transparent)]">
-            <h1 className="text-[clamp(2.5rem,1.3rem+3.4vw,3.875rem)] leading-[1.02] tracking-[-0.045em]">
-              Tu cliente deposita al empezar. <span className="text-muted-foreground">Tú cobras al entregar.</span>
-            </h1>
-            <p className="mt-7 t-lead sm:text-xl sm:leading-relaxed">
-              Para freelancers, agencias y trabajos por encargo. Creas un link de cobro, tu cliente paga en su moneda y
-              liberan los fondos según su acuerdo. Nadie, ni siquiera nosotros, puede quedarse con él.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Button asChild size="xl">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-20 lg:pt-10 lg:pb-30">
+          {/* Móvil y tablet: el texto llena la primera pantalla, con los botones abajo (al alcance del pulgar) y la
+              tarjeta al hacer scroll. Escritorio: velo detrás del texto para que el mar no ensucie la lectura. */}
+          <div className="relative flex min-h-[calc(100svh-4rem-1px)] max-w-xl flex-col pt-12 pb-8 sm:pt-16 lg:block lg:min-h-0 lg:py-0 lg:before:absolute lg:before:-inset-x-20 lg:before:-inset-y-16 lg:before:-z-10 lg:before:bg-[radial-gradient(closest-side,rgb(8_9_11/0.82)_35%,transparent)]">
+            {/* En vertical, el horizonte del mar se ubica justo debajo de este bloque. */}
+            <div data-sea-horizon>
+              <h1 className="text-[clamp(2.5rem,1.3rem+3.4vw,3.875rem)] leading-[1.02] tracking-[-0.045em]">
+                Tu cliente deposita al empezar. <span className="text-muted-foreground">Tú cobras al entregar.</span>
+              </h1>
+              <p className="mt-5 t-lead sm:hidden">
+                Creas un link de cobro y tu cliente paga en su moneda. El dinero queda en garantía hasta cada entrega.
+              </p>
+              <p className="mt-7 hidden t-lead sm:block sm:text-xl sm:leading-relaxed">
+                Para freelancers, agencias y trabajos por encargo. Creas un link de cobro, tu cliente paga en su moneda
+                y liberan los fondos según su acuerdo. Nadie, ni siquiera nosotros, puede quedarse con él.
+              </p>
+            </div>
+            <div className="mt-auto flex flex-col gap-3 pt-10 sm:flex-row sm:flex-wrap sm:items-center lg:mt-10 lg:pt-0">
+              <Button asChild size="xl" className="w-full sm:w-auto">
                 <Link href="/dashboard/new">Crear link de cobro</Link>
               </Button>
-              <Button asChild size="xl" variant="ghost" className="group/how">
+              {/* Sobre el mar lleva borde y fondo translúcido; en escritorio vuelve a ser un botón fantasma. */}
+              <Button
+                asChild
+                size="xl"
+                variant="ghost"
+                className="group/how w-full border-border bg-background/50 text-foreground backdrop-blur-md sm:w-auto lg:border-transparent lg:bg-transparent lg:text-muted-foreground lg:backdrop-blur-none"
+              >
                 <a href="#como-funciona">
                   Cómo funciona
                   <ArrowDownIcon className="transition-transform duration-200 group-hover/how:translate-y-0.5" />
                 </a>
               </Button>
             </div>
-            <p className="mt-6 text-sm text-subtle">Sin mensualidad. Pagas una pequeña comisión solo cuando cobras.</p>
+            <p className="mt-5 text-center text-sm text-subtle sm:text-left lg:mt-6">
+              Sin mensualidad. Pagas una pequeña comisión solo cuando cobras.
+            </p>
           </div>
           <HeroDemo />
         </div>

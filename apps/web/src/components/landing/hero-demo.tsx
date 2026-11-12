@@ -36,7 +36,7 @@ export function HeroDemo() {
   }, []);
 
   return (
-    <SpotlightCard className="rounded-3xl border border-border bg-surface surface-edge" contentClassName="p-6 sm:p-8">
+    <SpotlightCard className="rounded-3xl border border-border bg-surface surface-edge" contentClassName="p-5 sm:p-8">
       <figure aria-label="Ejemplo de un link de cobro con tres hitos">
         <div className="flex items-center gap-3">
           <Avatar name="Estudio Pampa" />
@@ -61,7 +61,7 @@ export function HeroDemo() {
               <li key={milestone.title} className="flex items-center gap-4 py-4">
                 <MilestoneNode status={status} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{milestone.title}</p>
+                  <p className="leading-snug font-medium text-pretty sm:truncate">{milestone.title}</p>
                   <MilestoneStatusText status={status} className="text-[0.8125rem]" />
                 </div>
                 <Usdc

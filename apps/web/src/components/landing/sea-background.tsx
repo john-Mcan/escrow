@@ -21,6 +21,7 @@ uniform float u_far;
 uniform float u_rowStep; // separación entre filas a la distancia d: d * u_rowStep
 uniform float u_time;
 uniform float u_pointSize;
+uniform float u_gain;
 uniform vec3 u_body;
 uniform vec3 u_crest;
 varying vec3 v_color;
@@ -87,7 +88,7 @@ void main() {
   v_sigma = sqrt(size * size * 0.16 + 0.25);
   v_quad = ceil(v_sigma * 5.0);
   v_color = mix(u_body, u_crest, glint);
-  v_alpha = intensity * ENERGY * size / (6.2831853 * v_sigma * v_sigma);
+  v_alpha = intensity * ENERGY * u_gain * size / (6.2831853 * v_sigma * v_sigma);
   gl_PointSize = v_quad;
 }
 `;
@@ -109,8 +110,18 @@ void main() {
 /** Altura de la cámara sobre el agua y distancia a la que se apaga el mar. */
 const EYE_HEIGHT = 1.5;
 const FAR = 60;
-/** Fracción del alto, desde arriba, donde queda el horizonte. */
-const HORIZON = 0.12;
+/**
+ * Ajustes según la forma del hero. Horizontal (escritorio): el texto va al costado, así que el horizonte queda alto
+ * y el mar se atenúa con un velo. Vertical (móvil y tablet): el texto ocupa la parte de arriba, así que el horizonte
+ * baja hasta el espacio libre entre el texto y los botones (ver `horizonBelow`), y el mar brilla más porque nada lo
+ * tapa. horizon: fracción del alto, desde arriba, donde queda el horizonte. gain: multiplica el brillo.
+ */
+const PRESETS = {
+  landscape: { horizon: 0.12, gain: 1 },
+  portrait: { horizon: 0.42, gain: 1.5 },
+};
+/** Aire entre el final del texto y el horizonte, en px. */
+const HORIZON_GAP = 28;
 const MAX_DPR = 1.5;
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -160,12 +171,12 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
-/** Cámara mirando mar adentro, inclinada para que el horizonte quede en HORIZON. Matriz en orden de columnas. */
-function camera(aspect: number) {
+/** Cámara mirando mar adentro, inclinada para que el horizonte quede en horizon. Matriz en orden de columnas. */
+function camera(aspect: number, horizon: number) {
   // En pantallas angostas se abre el campo vertical para no ver solo un pasillo de agua.
   const tanV = Math.min(1.2, Math.max(Math.tan((22.5 * Math.PI) / 180), 0.36 / aspect));
   const tanH = tanV * aspect;
-  const pitch = Math.atan((1 - 2 * HORIZON) * tanV);
+  const pitch = Math.atan((1 - 2 * horizon) * tanV);
   const c = Math.cos(pitch);
   const s = Math.sin(pitch);
   // Distancia a la que el borde inferior de la vista toca el agua.
@@ -191,12 +202,18 @@ function camera(aspect: number) {
 export function SeaBackground({
   colors = ["#11796e", "#e0fff6"],
   speed = 0.3,
+  horizonBelow,
   className,
   style,
 }: {
   /** Cuerpo del agua y crestas iluminadas. */
   colors?: [string, string];
   speed?: number;
+  /**
+   * Selector (dentro del mismo contenedor) del bloque de texto bajo el cual va el horizonte en vertical. El alto del
+   * texto cambia con el ancho del teléfono; así el mar nunca queda detrás de la última línea.
+   */
+  horizonBelow?: string;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -205,6 +222,7 @@ export function SeaBackground({
 
   useEffect(() => {
     const host = hostRef.current;
+    const anchor = horizonBelow ? host?.parentElement?.querySelector(horizonBelow) : null;
     // Un canvas nuevo por montaje: al desmontar se libera su contexto de GPU, y un segundo montaje (Strict Mode)
     // no hereda un contexto ya perdido.
     const canvas = document.createElement("canvas");
@@ -243,6 +261,7 @@ export function SeaBackground({
       rowStep: uniform("u_rowStep"),
       time: uniform("u_time"),
       pointSize: uniform("u_pointSize"),
+      gain: uniform("u_gain"),
       body: uniform("u_body"),
       crest: uniform("u_crest"),
     };
@@ -302,12 +321,21 @@ export function SeaBackground({
         gl!.bufferData(gl!.ARRAY_BUFFER, buildPoints(cols, rows), gl!.STATIC_DRAW);
       }
 
-      const view = camera(rect.width / rect.height);
+      const aspect = rect.width / rect.height;
+      const portrait = aspect < 1;
+      const preset = portrait ? PRESETS.portrait : PRESETS.landscape;
+      let horizon = preset.horizon;
+      if (portrait && anchor) {
+        const textBottom = anchor.getBoundingClientRect().bottom - rect.top + HORIZON_GAP;
+        horizon = Math.min(0.7, Math.max(0.15, textBottom / rect.height));
+      }
+      const view = camera(aspect, horizon);
       gl!.uniformMatrix4fv(u.viewProj, false, view.viewProj);
       gl!.uniform2f(u.spread, ...view.spread);
       gl!.uniform1f(u.near, view.near);
       gl!.uniform1f(u.rowStep, Math.log(FAR / view.near) / rows);
       gl!.uniform1f(u.pointSize, dpr);
+      gl!.uniform1f(u.gain, preset.gain);
       draw();
     }
 
@@ -333,6 +361,8 @@ export function SeaBackground({
     host.appendChild(canvas);
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
+    // Si el texto cambia de alto (fuentes, giro de pantalla), el horizonte se reacomoda.
+    if (anchor) resizeObserver.observe(anchor);
     // Fuera de pantalla no se anima: el hero queda atrás apenas se hace scroll.
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = !!entry?.isIntersecting;
@@ -359,7 +389,7 @@ export function SeaBackground({
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       canvas.remove();
     };
-  }, [body, crest, speed]);
+  }, [body, crest, speed, horizonBelow]);
 
   return <div ref={hostRef} aria-hidden="true" className={cn("pointer-events-none", className)} style={style} />;
 }

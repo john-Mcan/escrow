@@ -63,7 +63,10 @@ export async function getRequestUser(request: Request): Promise<AppUser | null> 
   if (!did) return null;
   const { data, error } = await getSupabaseAdmin().from("users").select("*").eq("privy_did", did).maybeSingle();
   if (error) throw new ApiError(500, "database_error", "No pudimos cargar tu perfil.");
-  return data ?? syncUserFromPrivy(did);
+  // Un perfil sin wallet se vuelve a leer de Privy: al crear la cuenta, la wallet embebida puede tardar un instante en
+  // aparecer en su API y la primera sincronización la pierde. Solo afecta a perfiles incompletos.
+  if (!data || !data.wallet_address) return syncUserFromPrivy(did);
+  return data;
 }
 
 export async function requireUser(request: Request): Promise<AppUser> {

@@ -7,7 +7,6 @@ import Link from "next/link";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { DetailRow } from "@/components/disclosure";
-import { TxLink } from "@/components/escrow/tx-link";
 import { SINGLE_TX_STEPS, toProgress, TxProgress } from "@/components/escrow/tx-progress";
 import { ProgressSteps, Spinner, WorkLine } from "@/components/loaders";
 import { Usdc } from "@/components/money";
@@ -76,10 +75,6 @@ export function MilestoneActions({ checkout, milestone, privateMilestone, role, 
         <ArrowUpRightIcon className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
       </a>
     </Button>
-  ) : null;
-
-  const receipt = milestone.tx_hash_settled ? (
-    <TxLink chainId={checkout.chain_id} hash={milestone.tx_hash_settled} label="Ver comprobante" className="text-sm" />
   ) : null;
 
   let guidance: ReactNode = null;
@@ -205,24 +200,18 @@ export function MilestoneActions({ checkout, milestone, privateMilestone, role, 
     }
   }
 
-  if (status === "released") {
-    guidance = role === "payee" ? `Recibiste ${formatUsdc(payeeAmount)} USDC.` : isParty ? `Pago liberado a ${providerName}.` : null;
-  } else if (status === "refunded") {
-    guidance = role === "payee" ? "Devolviste este hito a tu cliente." : role === "payer" ? "Te devolvieron el monto completo." : null;
-  } else if (status === "resolved") {
-    guidance = isParty ? "El árbitro resolvió la disputa y repartió este hito." : null;
+  // Hitos cerrados: el estado y el comprobante ya están en la fila. Solo se agrega lo que no dicen: cuánto recibió
+  // el proveedor después de la comisión.
+  if (status === "released" && role === "payee") {
+    guidance = `Recibiste ${formatUsdc(payeeAmount)} USDC después de la comisión.`;
   }
 
   const visibleButtons = buttons.filter(Boolean);
-  if (!guidance && visibleButtons.length === 0 && !receipt) return null;
+  if (!guidance && visibleButtons.length === 0) return null;
 
   return (
     <div className="mt-4 space-y-3">
-      {(guidance || receipt) && (
-        <p className={cn("text-[0.9375rem]", yourTurn ? "text-foreground" : "text-muted-foreground")}>
-          {guidance} {receipt}
-        </p>
-      )}
+      {guidance && <p className={cn("text-[0.9375rem]", yourTurn ? "text-foreground" : "text-muted-foreground")}>{guidance}</p>}
       {visibleButtons.length > 0 && <div className="flex flex-wrap items-center gap-2">{visibleButtons}</div>}
     </div>
   );

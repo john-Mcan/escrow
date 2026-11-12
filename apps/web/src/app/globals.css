@@ -47,6 +47,13 @@
   --radius-3xl: 24px;
 
   --animate-shimmer: shimmer 1.8s ease-in-out infinite;
+
+  /* Movimiento: casi todo usa la misma curva, rápida al inicio y suave al llegar. */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-rise: rise 420ms var(--ease-out-soft) both;
+  --animate-reveal: reveal 300ms var(--ease-out-soft) both;
+  /* Toma su período de un --duration en línea: un solo keyframe para todas las velocidades. */
+  --animate-shine: shine var(--duration) infinite linear;
 }
 
 :root {
@@ -84,6 +91,10 @@
 
   /* Plata semimetalizada: el dinero retenido. Único gradiente del sistema. */
   --metal: linear-gradient(135deg, #f4f6f8 0%, #b2bac3 36%, #e4e8ec 60%, #8d96a0 100%);
+
+  /* Tarjetas con foco de luz (`SpotlightCard`): el borde se ilumina en esmeralda y la cara apenas se aclara. */
+  --spot-edge: rgb(125 231 187 / 0.55);
+  --spot-glow: rgb(125 231 187 / 0.045);
 }
 
 @layer base {
@@ -287,6 +298,48 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+@keyframes reveal {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+@keyframes shine {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Secciones que aparecen una vez al entrar en pantalla (`<Rise>`). Sin JS o con movimiento reducido, se ven quietas. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-rise]:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  [data-rise] {
+    transition:
+      opacity 520ms var(--ease-out-soft),
+      transform 520ms var(--ease-out-soft);
+    transition-delay: var(--rise-delay, 0ms);
   }
 }
 

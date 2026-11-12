@@ -227,6 +227,65 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
       contrato lo permite). Decidir si el botón se muestra siempre o se destaca recién con el entregable. Resuelto en
       la pasada: antes de la entrega es un botón secundario; con la entrega pasa a ser la acción principal.
 
+### Revisión de QA del front (2026-11-12)
+
+- [x] **Avatar:** la inicial quedaba ~1 px por encima del centro (las métricas de Figtree dejan más espacio arriba).
+      Componente `Avatar` compartido con `text-box: trim-both cap alphabetic`; usado en el menú, el checkout y la
+      portada.
+- [x] **Isotipo siempre visible:** los corchetes de los estados pendiente, pagado y reembolsado usaban `#34383d`
+      (contraste 1,7:1 sobre el fondo). Ahora van en texto (≥ 7:1) y el estado lo cuentan el núcleo y la apertura.
+      Lo mismo en el `MarkGlyph` en reposo (pasos del depósito, estados vacíos).
+- [x] **H1 de la portada:** "Cobra por hitos con el pago ya asegurado" sonaba técnico. Ahora: "Tu cliente deposita al
+      empezar. Tú cobras al entregar.", y la bajada abre nombrando a quién sirve (freelancers, agencias y trabajos por
+      encargo).
+- [x] **"Cómo funciona":** el paso 2 dice que el cliente paga en su moneda. Se agregó el recorrido del dinero (paga en su
+      moneda → queda en garantía en USDC → cobras) con el monto en la moneda detectada del visitante, y una sección
+      de casos de uso (freelancers con clientes en otros países, agencias, obras por etapas y compraventas).
+- [x] **Formulario de nuevo link:** los campos quedan en dos paneles, "El acuerdo" (trabajo, descripción, tu nombre y el
+      email del cliente) y "Hitos". Bajo cada monto aparece el equivalente en tu moneda y el botón para agregar
+      hitos ocupa todo el ancho.
+- [x] **Hitos del checkout:** filas en una sola superficie (como el ejemplo de la portada), monto en USDC con su
+      equivalente local, y sin datos repetidos en los hitos cerrados. El comprobante va en la línea de estado, la
+      fecha estimada solo se muestra en hitos abiertos y se quitaron las frases que repetían el estado.
+- [x] **Movimiento tomado de vriza:** `SpotlightCard` (borde y brillo que siguen al puntero), `ShineBorder` (luz
+      que recorre el campo con foco), `Rise` (aparición al entrar en pantalla) y `Reveal` (errores que abren su
+      espacio), en `components/motion.tsx`. La pantalla de ingreso pasó a ser una tarjeta con entrada escalonada.
+- [ ] **Texto vs. producto:** la portada promete que el cliente paga "con transferencia o tarjeta, en su moneda". Hoy
+      solo se paga con USDC. Es intencional: el on-ramp (Fase 7) tiene que estar resuelto antes de salir a producción.
+
+**QA visual cerrado el 2026-11-12.** Quedan abiertos el formato de números y las pruebas del ingreso nuevo que se
+listan abajo.
+
+#### Segunda revisión (2026-11-12)
+
+- [x] **Avatar con centrado óptico:** la J seguía viéndose a la derecha (su caja está centrada, pero su peso no).
+      Cada letra se corrige hacia un punto entre su caja y su centro de masa, medido en el navegador sobre Figtree.
+- [x] **Textos de la portada:** bajada nueva, paso 2 "Tu cliente paga el trabajo" y el recorrido del dinero como
+      sección propia ("Tu cliente paga en su moneda y tú cobras en dólares"), con su propio H2.
+- [x] **Efecto de cursor (`SpotlightCard`):** solo en el ingreso y en la portada; se quitó de los paneles del
+      formulario.
+- [x] **Detalle y fecha de cada hito:** el detalle se abre a todo el ancho con una ayuda, y la fecha es un botón que
+      muestra "Entrega estimada: 15 dic 2026" y abre el calendario del sistema (se quita con una ×).
+- [x] **`.env`:** remitente de los emails `extan <…>` (antes "Hito"); `.env.example` también. Las variables `ESCROW_*`
+      se mantienen: nombran el contrato `MilestoneEscrow` y las lee el script de deploy.
+- [x] **Ingreso propio en español:** ventana de extan (email con código o Google) sobre los hooks headless de Privy,
+      con el fondo más oscuro y anclada arriba en móvil. La ventana de Privy queda solo para conectar una wallet
+      externa y para las firmas. Si el cliente toca "Depositar" sin sesión, al ingresar se abre el depósito (también
+      después de volver de Google).
+- [ ] **Probar el ingreso nuevo en Base Sepolia:**
+  - [x] email con código y usuario nuevo (`john.moya@live.cl`, 2026-11-12): Privy le creó la wallet embebida
+        `0x46e6…3f02` y quedó en el perfil;
+  - [ ] Google;
+  - [ ] wallet externa;
+  - [ ] "Depositar" sin sesión.
+- [x] **Bug: perfil sin wallet tras crear la cuenta.** El navegador ve la wallet nueva un instante antes que la API
+      de Privy que consulta el servidor; si la sincronización llegaba en ese momento, el perfil quedaba sin wallet
+      para siempre (le pasó a `john.mc+test@upg.cl` el 2026-11-11) y no podía crear links. Ahora `useMe` reintenta
+      mientras el navegador ve una wallet que el perfil no tiene, y el servidor vuelve a leer de Privy cualquier
+      perfil sin wallet.
+- [ ] **Formato de números:** USDC usa `2,500.00` (es-419) y CLP `$2.480.484`. En la portada ahora conviven en el
+      mismo bloque; decidir un solo criterio.
+
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 
 ## Fase 5: Bases técnicas y staging

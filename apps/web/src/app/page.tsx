@@ -1,25 +1,54 @@
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, GlobeIcon, HandshakeIcon, HardHatIcon, LayersIcon } from "lucide-react";
 import Link from "next/link";
 import { Disclosure } from "@/components/disclosure";
 import { MilestoneNode } from "@/components/escrow/milestone-track";
+import { CurrencyFlow } from "@/components/landing/currency-flow";
 import { HeroDemo } from "@/components/landing/hero-demo";
+import { Rise, SpotlightCard } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 
 const STEPS = [
   {
     status: "pending",
     title: "Creas el link",
-    body: "Divides el trabajo en hitos con su monto. Lo compartes por WhatsApp o email en menos de un minuto.",
+    body: "Divides el trabajo en hitos: etapas con su entrega y su monto. Lo compartes por WhatsApp o email en menos de un minuto.",
   },
   {
     status: "funded",
-    title: "Tu cliente deposita",
-    body: "Entra con su email y deposita el total una sola vez. El dinero queda en garantía: existe, pero nadie puede tocarlo.",
+    title: "Tu cliente paga el trabajo",
+    body: "Entra con su email y paga el total una sola vez, con transferencia o tarjeta. El dinero queda en garantía: existe, pero nadie puede tocarlo.",
   },
   {
     status: "released",
     title: "Entregas y cobras",
     body: "Envías cada entrega, tu cliente la aprueba y ese pago te llega al momento. Hito por hito.",
+  },
+] as const;
+
+const USE_CASES = [
+  {
+    icon: GlobeIcon,
+    title: "Freelancers con clientes en otros países",
+    body: "Diseño, desarrollo, traducción o marketing. Tu cliente paga en su moneda y tú cobras en dólares digitales, sin esperar una transferencia internacional.",
+    example: "Ej.: sitio web en 3 hitos",
+  },
+  {
+    icon: LayersIcon,
+    title: "Agencias y estudios con proyectos largos",
+    body: "Divide un proyecto de meses en etapas. Cada entrega aprobada es un pago y dejas de financiar el trabajo de tu cliente.",
+    example: "Ej.: branding y lanzamiento en 4 hitos",
+  },
+  {
+    icon: HardHatIcon,
+    title: "Obras y servicios que avanzan por etapas",
+    body: "Tu cliente deposita al empezar y libera cada pago según el avance. Tú sabes que el dinero existe antes de comprar materiales.",
+    example: "Ej.: remodelación en 3 hitos",
+  },
+  {
+    icon: HandshakeIcon,
+    title: "Compraventas entre desconocidos",
+    body: "Con un solo hito: quien compra deposita, quien vende envía y el pago se libera cuando el producto llega como se acordó.",
+    example: "Ej.: equipo usado en 1 hito",
   },
 ] as const;
 
@@ -47,10 +76,12 @@ export default function HomePage() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       <section className="grid items-center gap-14 py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-20 lg:py-28">
         <div className="max-w-xl">
-          <h1 className="t-display">Cobra por hitos con el pago ya asegurado.</h1>
+          <h1 className="text-[clamp(2.5rem,1.3rem+3.4vw,3.875rem)] leading-[1.02] tracking-[-0.045em]">
+            Tu cliente deposita al empezar. <span className="text-muted-foreground">Tú cobras al entregar.</span>
+          </h1>
           <p className="mt-7 t-lead sm:text-xl sm:leading-relaxed">
-            Crea un link en segundos. Tu cliente deposita una vez, el dinero queda en garantía y recibes cada parte al
-            entregar. Nadie, ni siquiera nosotros, puede quedarse con ese dinero.
+            Para freelancers, agencias y trabajos por encargo. Creas un link de cobro, tu cliente paga en su moneda y
+            liberan los fondos según su acuerdo. Nadie, ni siquiera nosotros, puede quedarse con él.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Button asChild size="xl">
@@ -73,17 +104,61 @@ export default function HomePage() {
           <h2 id="how-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
             Cómo funciona
           </h2>
-          <p className="t-lead">Tres pasos, y tu cliente no necesita saber nada de cripto.</p>
+          <p className="t-lead">Tres pasos. Tu cliente paga en su moneda y no necesita saber nada de cripto.</p>
         </div>
         <ol className="mt-14 grid gap-12 sm:grid-cols-3 sm:gap-10">
-          {STEPS.map((step) => (
-            <li key={step.title} className="space-y-4">
+          {STEPS.map((step, index) => (
+            <Rise as="li" key={step.title} delay={index * 90} className="space-y-4">
               <MilestoneNode status={step.status} className="origin-left scale-125" />
               <h3 className="pt-2 text-xl">{step.title}</h3>
               <p className="text-muted-foreground">{step.body}</p>
-            </li>
+            </Rise>
           ))}
         </ol>
+      </section>
+
+      <section aria-labelledby="currency-heading" className="border-t border-border py-20 lg:py-24">
+        <div className="max-w-2xl space-y-3">
+          <h2 id="currency-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
+            Tu cliente paga en su moneda y tú cobras en dólares
+          </h2>
+          <p className="t-lead">Así viaja un pago de ejemplo, con el equivalente en tu moneda según el tipo de cambio de hoy.</p>
+        </div>
+        <Rise className="mt-14">
+          <CurrencyFlow />
+        </Rise>
+      </section>
+
+      <section aria-labelledby="cases-heading" className="border-t border-border py-20 lg:py-24">
+        <div className="max-w-2xl space-y-3">
+          <h2 id="cases-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
+            Para trabajos que se pagan por partes
+          </h2>
+          <p className="t-lead">
+            Cuando las partes no se conocen, nadie quiere pagar ni trabajar primero. Con extan, ninguno tiene que
+            arriesgarse.
+          </p>
+        </div>
+        <ul className="mt-14 grid gap-4 sm:grid-cols-2">
+          {USE_CASES.map((useCase, index) => {
+            const Icon = useCase.icon;
+            return (
+              <Rise as="li" key={useCase.title} delay={(index % 2) * 90}>
+                <SpotlightCard
+                  className="h-full rounded-3xl border border-border bg-surface surface-edge"
+                  contentClassName="flex flex-col gap-4 p-6 sm:p-8"
+                >
+                  <span className="grid size-10 place-items-center rounded-xl border border-line-strong bg-raised text-primary">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="pt-1 text-xl">{useCase.title}</h3>
+                  <p className="flex-1 text-muted-foreground">{useCase.body}</p>
+                  <p className="t-meta">{useCase.example}</p>
+                </SpotlightCard>
+              </Rise>
+            );
+          })}
+        </ul>
       </section>
 
       <section aria-labelledby="trust-heading" className="grid gap-12 border-t border-border py-20 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20 lg:py-24">

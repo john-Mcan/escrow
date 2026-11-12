@@ -2,10 +2,12 @@
 
 import type { MilestoneStatus } from "@escrow/shared";
 import { useEffect, useState } from "react";
+import { Avatar } from "@/components/avatar";
 import { AmountBar } from "@/components/escrow/amount-bar";
 import { MilestoneNode } from "@/components/escrow/milestone-track";
 import { MilestoneStatusText } from "@/components/escrow/status";
 import { LocalAmount, Usdc } from "@/components/money";
+import { SpotlightCard } from "@/components/motion";
 
 const MILESTONES = [
   { title: "Diseño de la tienda", amount: "600000000" },
@@ -34,47 +36,44 @@ export function HeroDemo() {
   }, []);
 
   return (
-    <figure
-      aria-label="Ejemplo de un link de cobro con tres hitos"
-      className="rounded-3xl border border-border bg-surface p-6 surface-edge sm:p-8"
-    >
-      <div className="flex items-center gap-3">
-        <span aria-hidden="true" className="grid size-9 place-items-center rounded-full border border-line-strong bg-raised text-sm font-semibold">
-          E
-        </span>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Estudio Pampa</span> te envió un acuerdo de pago
-        </p>
-      </div>
-      <p className="mt-6 text-xl font-semibold tracking-[-0.02em]">Rediseño de tienda online</p>
-      <div className="mt-2 flex flex-wrap items-baseline gap-x-3">
-        <Usdc amount={TOTAL} className="text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]" unitClassName="text-base tracking-normal" />
-        <LocalAmount amount={TOTAL} className="text-sm" />
-      </div>
-      <AmountBar
-        className="mt-5"
-        showLegend={false}
-        segments={MILESTONES.map((m, i) => ({ ...m, status: statuses[i] ?? "funded" }))}
-      />
-      <ol className="mt-6 divide-y divide-border border-t border-border">
-        {MILESTONES.map((milestone, index) => {
-          const status = statuses[index] ?? "funded";
-          return (
-            <li key={milestone.title} className="flex items-center gap-4 py-4">
-              <MilestoneNode status={status} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{milestone.title}</p>
-                <MilestoneStatusText status={status} className="text-[0.8125rem]" />
-              </div>
-              <Usdc
-                amount={milestone.amount}
-                className={status === "released" ? "font-semibold text-seal transition-colors duration-500" : "font-semibold transition-colors duration-500"}
-                unitClassName="text-xs"
-              />
-            </li>
-          );
-        })}
-      </ol>
-    </figure>
+    <SpotlightCard className="rounded-3xl border border-border bg-surface surface-edge" contentClassName="p-6 sm:p-8">
+      <figure aria-label="Ejemplo de un link de cobro con tres hitos">
+        <div className="flex items-center gap-3">
+          <Avatar name="Estudio Pampa" />
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Estudio Pampa</span> te envió un acuerdo de pago
+          </p>
+        </div>
+        <p className="mt-6 text-xl font-semibold tracking-[-0.02em]">Rediseño de tienda online</p>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-3">
+          <Usdc amount={TOTAL} className="text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]" unitClassName="text-base tracking-normal" />
+          <LocalAmount amount={TOTAL} className="text-sm" />
+        </div>
+        <AmountBar
+          className="mt-5"
+          showLegend={false}
+          segments={MILESTONES.map((m, i) => ({ ...m, status: statuses[i] ?? "funded" }))}
+        />
+        <ol className="mt-6 divide-y divide-border border-t border-border">
+          {MILESTONES.map((milestone, index) => {
+            const status = statuses[index] ?? "funded";
+            return (
+              <li key={milestone.title} className="flex items-center gap-4 py-4">
+                <MilestoneNode status={status} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{milestone.title}</p>
+                  <MilestoneStatusText status={status} className="text-[0.8125rem]" />
+                </div>
+                <Usdc
+                  amount={milestone.amount}
+                  className={status === "released" ? "font-semibold text-seal transition-colors duration-500" : "font-semibold transition-colors duration-500"}
+                  unitClassName="text-xs"
+                />
+              </li>
+            );
+          })}
+        </ol>
+      </figure>
+    </SpotlightCard>
   );
 }

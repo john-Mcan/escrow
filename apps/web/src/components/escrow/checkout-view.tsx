@@ -5,6 +5,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { PasskeyPrompt } from "@/components/auth/passkey-prompt";
+import { Avatar } from "@/components/avatar";
 import { ActivityTimeline } from "@/components/escrow/activity-timeline";
 import { AmountBar } from "@/components/escrow/amount-bar";
 import { CheckoutSummary } from "@/components/escrow/checkout-summary";
@@ -79,12 +80,7 @@ export function CheckoutView({ initial }: { initial: PublicCheckout }) {
       <div className="grid grid-cols-1 gap-x-16 gap-y-10 [grid-template-areas:'head'_'summary'_'body'] lg:grid-cols-[minmax(0,1fr)_23.5rem] lg:[grid-template-areas:'head_summary'_'body_summary']">
         <header className="min-w-0 space-y-5 [grid-area:head]">
           <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="grid size-9 shrink-0 place-items-center rounded-full border border-line-strong bg-raised text-sm font-semibold"
-            >
-              {providerName.charAt(0).toUpperCase()}
-            </span>
+            <Avatar name={providerName} />
             <p className="text-sm text-muted-foreground">
               {role === "payee" ? (
                 "Tu link de cobro"
@@ -132,6 +128,7 @@ export function CheckoutView({ initial }: { initial: PublicCheckout }) {
             </div>
             <MilestoneTrack
               milestones={checkout.milestones}
+              chainId={checkout.chain_id}
               renderExtra={(index) => {
                 const milestone = checkout.milestones[index];
                 if (!milestone) return null;

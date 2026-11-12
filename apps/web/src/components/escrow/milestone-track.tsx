@@ -1,21 +1,23 @@
 import type { MilestoneStatus, PublicCheckoutMilestone } from "@escrow/shared";
 import type { ReactNode } from "react";
 import { MARK_CORE, MARK_LEFT_BRACKET, MARK_RIGHT_BRACKET } from "@/components/brand";
-import { Usdc } from "@/components/money";
 import { MilestoneStatusText } from "@/components/escrow/status";
+import { TxLink } from "@/components/escrow/tx-link";
+import { LocalAmount, Usdc } from "@/components/money";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Core = "empty" | "metal" | "seal" | "caution" | "void";
 
+/** Los corchetes siempre se leen como el isotipo (contraste ≥ 7:1); el estado lo cuentan el núcleo y la apertura. */
 const NODE: Record<MilestoneStatus, { bracket: string; core: Core; open?: boolean; ping?: boolean }> = {
-  pending: { bracket: "var(--line-strong)", core: "empty" },
+  pending: { bracket: "var(--foreground)", core: "empty" },
   funded: { bracket: "var(--foreground)", core: "metal" },
   delivered_review: { bracket: "var(--foreground)", core: "metal", ping: true },
-  released: { bracket: "var(--line-strong)", core: "seal", open: true },
-  resolved: { bracket: "var(--line-strong)", core: "seal", open: true },
+  released: { bracket: "var(--foreground)", core: "seal", open: true },
+  resolved: { bracket: "var(--foreground)", core: "seal", open: true },
   disputed: { bracket: "var(--caution)", core: "caution" },
-  refunded: { bracket: "var(--line-strong)", core: "void", open: true },
+  refunded: { bracket: "var(--muted-foreground)", core: "void", open: true },
 };
 
 /**
@@ -67,8 +69,8 @@ export function MilestoneNode({ status, className }: { status: MilestoneStatus; 
             height={core.size - 1.2}
             rx={core.radius}
             fill="none"
-            stroke="var(--line-strong)"
-            strokeWidth="1.2"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.4"
             strokeDasharray="2 2"
           />
         )}
@@ -80,8 +82,8 @@ export function MilestoneNode({ status, className }: { status: MilestoneStatus; 
             height={core.size - 1.2}
             rx={core.radius}
             fill="none"
-            stroke="var(--subtle)"
-            strokeWidth="1.2"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.4"
           />
         )}
         {(node.core === "metal" || node.core === "seal" || node.core === "caution") && (
@@ -99,38 +101,56 @@ export function MilestoneNode({ status, className }: { status: MilestoneStatus; 
   );
 }
 
-/** Hitos como recorrido vertical: cada nodo muestra dónde está el dinero de ese tramo. */
+const SETTLED: MilestoneStatus[] = ["released", "refunded", "resolved"];
+
+/**
+ * Hitos como filas de una misma superficie, igual que el ejemplo de la portada: el nodo dice dónde está el dinero,
+ * el monto va en USDC con su equivalente local y, cuando el hito se cierra, la fecha estimada deja lugar al
+ * comprobante.
+ */
 export function MilestoneTrack({
   milestones,
+  chainId,
   renderExtra,
 }: {
-  milestones: Pick<PublicCheckoutMilestone, "id" | "title" | "amount" | "status" | "description" | "due_date">[];
+  milestones: Pick<PublicCheckoutMilestone, "id" | "title" | "amount" | "status" | "description" | "due_date" | "tx_hash_settled">[];
+  chainId: number;
   renderExtra?: (index: number) => ReactNode;
 }) {
   return (
-    <ol className="relative">
+    <ol className="divide-y divide-border rounded-2xl border border-border bg-surface surface-edge">
       {milestones.map((milestone, index) => {
-        const last = index === milestones.length - 1;
-        const paid = milestone.status === "released" || milestone.status === "resolved";
+        const settled = SETTLED.includes(milestone.status);
         return (
-          <li key={milestone.id} className="relative grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-4 pb-10 last:pb-0 sm:gap-x-5">
-            <div className="relative flex items-start justify-center pt-0.5">
-              <MilestoneNode status={milestone.status} />
-              {!last && (
-                <span
-                  aria-hidden="true"
-                  className={cn("absolute top-9 -bottom-1.5 w-px transition-colors duration-500", paid ? "bg-seal/40" : "bg-border")}
-                />
-              )}
-            </div>
+          <li
+            key={milestone.id}
+            className="grid grid-cols-[1.875rem_minmax(0,1fr)] gap-x-4 p-5 transition-colors duration-500 sm:gap-x-5 sm:p-6"
+          >
+            <MilestoneNode status={milestone.status} className="mt-0.5 self-start" />
             <div className="min-w-0">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                <h3 className="min-w-0 text-lg">{milestone.title}</h3>
-                <Usdc amount={milestone.amount} className="text-lg font-semibold tracking-[-0.01em]" unitClassName="text-sm" />
-              </div>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-1">
-                <MilestoneStatusText status={milestone.status} />
-                {milestone.due_date && <span className="t-meta">Entrega estimada {formatDate(milestone.due_date)}</span>}
+              <div className="flex items-start justify-between gap-x-6">
+                <div className="min-w-0">
+                  <h3 className={cn("text-lg", milestone.status === "refunded" && "text-muted-foreground")}>{milestone.title}</h3>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <MilestoneStatusText status={milestone.status} />
+                    {!settled && milestone.due_date && <span className="t-meta">Entrega estimada {formatDate(milestone.due_date)}</span>}
+                    {settled && milestone.tx_hash_settled && (
+                      <TxLink chainId={chainId} hash={milestone.tx_hash_settled} label="Comprobante" className="text-[0.8125rem]" />
+                    )}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <Usdc
+                    amount={milestone.amount}
+                    className={cn(
+                      "block text-lg font-semibold tracking-[-0.01em] transition-colors duration-500",
+                      milestone.status === "released" && "text-seal",
+                      milestone.status === "refunded" && "text-muted-foreground",
+                    )}
+                    unitClassName="text-sm"
+                  />
+                  <LocalAmount amount={milestone.amount} className="block text-[0.8125rem]" />
+                </div>
               </div>
               {milestone.description && (
                 <p className="mt-3 max-w-prose text-[0.9375rem] whitespace-pre-line text-muted-foreground">{milestone.description}</p>

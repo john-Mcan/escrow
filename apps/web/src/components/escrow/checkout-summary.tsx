@@ -5,6 +5,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { LockIcon, ReceiptTextIcon, ScaleIcon, ShieldCheckIcon, Undo2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useReadContract } from "wagmi";
+import { useSignIn } from "@/components/auth/sign-in";
 import { DetailRow, Disclosure } from "@/components/disclosure";
 import { DepositDialog } from "@/components/escrow/deposit-dialog";
 import { ShareLink } from "@/components/escrow/share-link";
@@ -40,7 +41,8 @@ export function CheckoutSummary({
   identityPending: boolean;
   providerName: string;
 }) {
-  const { ready, authenticated, login } = usePrivy();
+  const { ready, authenticated } = usePrivy();
+  const signIn = useSignIn();
   const { data: me } = useMe();
   const [depositOpen, setDepositOpen] = useState(false);
   const [wantsDeposit, setWantsDeposit] = useState(false);
@@ -58,17 +60,40 @@ export function CheckoutSummary({
   });
   const feeBps = checkout.platform_fee_bps ?? (currentFeeBps !== undefined ? Number(currentFeeBps) : null);
 
-  // Quien tocó "Depositar" sin sesión continúa directo al depósito al terminar de ingresar.
+  // Quien tocó "Depositar" sin sesión continúa directo al depósito al terminar de ingresar. La intención también
+  // queda en sessionStorage: el ingreso con Google sale de la página y vuelve recargándola.
+  const intentKey = `extan:deposit-after-sign-in:${checkout.id}`;
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(intentKey)) setWantsDeposit(true);
+    } catch {
+      // Sin almacenamiento: solo se recuerda dentro de la pestaña actual.
+    }
+  }, [intentKey]);
+
   useEffect(() => {
     if (!wantsDeposit || !authenticated || !me) return;
     setWantsDeposit(false);
+    try {
+      sessionStorage.removeItem(intentKey);
+    } catch {
+      // Ídem.
+    }
     if (role !== "payee") setDepositOpen(true);
-  }, [authenticated, me, role, wantsDeposit]);
+  }, [authenticated, intentKey, me, role, wantsDeposit]);
 
   function startDeposit() {
     if (!authenticated) {
       setWantsDeposit(true);
-      login();
+      try {
+        sessionStorage.setItem(intentKey, "1");
+      } catch {
+        // Ídem.
+      }
+      signIn({
+        title: "Ingresa para depositar",
+        description: "Con tu email, sin contraseña. Si es tu primera vez, creamos tu cuenta al instante.",
+      });
       return;
     }
     setDepositOpen(true);

@@ -51,14 +51,17 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  overlayClassName,
   onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  /** Para diálogos que deben tapar más la página (p. ej. el ingreso). */
+  overlayClassName?: string
 }) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         // El foco inicial va al diálogo (no al botón de cerrar): Tab lleva al primer control.

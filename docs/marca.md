@@ -1,6 +1,6 @@
 # Guía de marca: extan
 
-Última actualización: 2026-11-11. Nombre provisional: **extan** (`extan.io` está disponible, pero todavía no se
+Última actualización: 2026-11-12. Nombre provisional: **extan** (`extan.io` está disponible, pero todavía no se
 compra). Si cambia, el nombre vive en `components/brand.tsx`, `layout.tsx`, `providers.tsx` (Privy) y en las plantillas
 de email.
 
@@ -11,7 +11,9 @@ está en garantía. Es la pieza que distingue la marca y se usa con intención:
 
 - **Isotipo y wordmark** en el header, el footer, la ventana de Privy y los emails.
 - **Nodos del recorrido de hitos:** con corchetes cerrados y núcleo plateado, el dinero está retenido. Cuando el pago
-  sale, los corchetes se abren y el núcleo pasa a esmeralda.
+  sale, los corchetes se abren y el núcleo pasa a esmeralda. Los corchetes siempre van en color de texto (o ámbar en
+  disputa, gris claro si se reembolsó): el isotipo nunca baja de 7:1 de contraste; el estado lo cuentan el núcleo y la
+  apertura.
 - **Loader:** los corchetes se cierran sobre el valor y lo sueltan mientras algo se procesa.
 
 Todo lo demás es sobrio: un solo color de acción, superficies planas, jerarquía tipográfica clara.
@@ -52,7 +54,7 @@ vez:
 
 | Nivel | Tamaño | Peso | Tracking | Dónde |
 |---|---|---|---|---|
-| Display (`t-display`) | 42–72 px | 600 | −0,045em | Portada |
+| Display (`t-display`, H1 de la portada) | 40–72 px | 600 | −0,045em | Portada |
 | H1 | 30–40 px | 600 | −0,032em | Título de cada pantalla |
 | H2 | 22 px | 600 | −0,02em | Secciones |
 | H3 | 17 px | 600 | −0,01em | Subsecciones e ítems |
@@ -70,6 +72,10 @@ vez:
 - Paneles: superficie `#151719`, borde de 1 px y un filo iluminado arriba (`surface-edge`). Sin sombras pesadas.
 - **Sin anidar grupos:** dentro de un panel, las secciones se separan con líneas, no con más cajas.
 - **Sin chips ni pastillas:** el estado se escribe como texto con un marcador cuadrado del color del dinero.
+- **Formularios:** los campos se agrupan en paneles hermanos (p. ej. "El acuerdo" y "Hitos"), nunca uno dentro de otro.
+- **Avatares:** siempre con `Avatar`. Centra la inicial ópticamente: recorta el texto a la altura de las mayúsculas
+  y mueve cada letra hacia un punto entre el centro de su caja y su centro de masa (75% masa en horizontal, 25% en
+  vertical), medido sobre Figtree 600. Así la J o la L no parecen corridas.
 
 ## Movimiento
 
@@ -85,6 +91,14 @@ vez:
   - `WorkLine`, un destello en el borde de los diálogos;
   - `Spinner` dentro de botones;
   - `Skeleton` con brillo para contenido que viene en camino.
+- **Superficies vivas** (`components/motion.tsx`, tomadas del proyecto vriza):
+  - `SpotlightCard`: el borde se ilumina en esmeralda y la cara apenas se aclara siguiendo al puntero (solo con mouse).
+    Es un llamado suave a la acción, no un adorno: solo en la ventana y la tarjeta de ingreso y en la portada. Nunca
+    en tarjetas ni paneles del dashboard;
+  - `ShineBorder`: una luz recorre el borde del campo con foco;
+  - `Rise`: las secciones suben 10 px y aparecen una vez al entrar en pantalla, escalonadas cada 90 ms;
+  - `Reveal`: los errores abren su propio espacio, sin saltos.
+  - Curva común: `--ease-out-soft` (`cubic-bezier(0.16, 1, 0.3, 1)`).
 - **Un solo momento orquestado:** en la portada, el cliente aprueba la primera entrega y ese pago sale de la garantía.
 - Se respeta `prefers-reduced-motion`.
 
@@ -122,8 +136,13 @@ Los montos se muestran en USDC y, al lado, la referencia en la moneda local: "�
 
 ## Superficies externas
 
+- **Ingreso (`components/auth/sign-in.tsx`):** ventana propia en español sobre los hooks headless de Privy
+  (`useLoginWithEmail`, `useLoginWithOAuth`): email con código de 6 dígitos o Google. Fondo más oscuro y difuminado
+  que el resto de los diálogos; en móvil se ancla arriba para que el teclado no tape el código.
+  - El email con el código lo envía Privy, desde privy.io y en inglés. Personalizarlo es del plan enterprise.
 - **Privy:**
-  - fondo `#151719`, acento esmeralda, isotipo con wordmark y textos propios en la ventana de login;
+  - su ventana queda solo para conectar una wallet externa ("¿Usas una wallet cripto? Conéctala") y para las firmas;
+  - fondo `#151719`, acento esmeralda, isotipo con wordmark;
   - las firmas con wallet embebida llevan título, descripción y botón en español (`uiOptions`);
   - Privy no permite traducir el resto de su ventana ("Submit", "Continue with a wallet", "Protected by Privy").
 - **Emails:**

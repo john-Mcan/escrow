@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDownIcon, FingerprintIcon, LayoutListIcon, LogOutIcon, QrCodeIcon, ScaleIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useSignIn } from "@/components/auth/sign-in";
+import { Avatar } from "@/components/avatar";
 import { LocalAmount, Usdc } from "@/components/money";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,7 +24,8 @@ import { useUsdcBalance } from "@/hooks/use-usdc-balance";
 import { shortAddress } from "@/lib/format";
 
 export function UserMenu() {
-  const { ready, authenticated, login, logout, user } = usePrivy();
+  const { ready, authenticated, logout, user } = usePrivy();
+  const signIn = useSignIn();
   const { showMfaEnrollmentModal } = useMfaEnrollment();
   const { data: me } = useMe();
   const queryClient = useQueryClient();
@@ -32,7 +35,7 @@ export function UserMenu() {
   if (!ready) return <Skeleton className="h-9 w-28" />;
   if (!authenticated) {
     return (
-      <Button variant="outline" size="sm" onClick={() => login()}>
+      <Button variant="outline" size="sm" onClick={() => signIn()}>
         Ingresar
       </Button>
     );
@@ -40,7 +43,6 @@ export function UserMenu() {
 
   const email = me?.email ?? user?.email?.address ?? null;
   const label = me?.displayName || email || shortAddress(me?.walletAddress) || "Mi cuenta";
-  const initial = label.trim().charAt(0).toUpperCase();
   const hasPasskey = user?.mfaMethods.includes("passkey") ?? false;
 
   return (
@@ -48,12 +50,7 @@ export function UserMenu() {
       <DropdownMenu onOpenChange={(open) => open && void balance.refetch()}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="group/menu h-9 gap-2 pr-2 pl-1 text-foreground">
-            <span
-              aria-hidden="true"
-              className="grid size-7 place-items-center rounded-full border border-line-strong bg-raised text-xs font-semibold"
-            >
-              {initial}
-            </span>
+            <Avatar name={label} size="sm" />
             <span className="hidden max-w-40 truncate sm:inline">{label}</span>
             <ChevronDownIcon className="text-muted-foreground transition-transform duration-200 group-aria-expanded/menu:rotate-180" />
           </Button>

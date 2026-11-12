@@ -27,7 +27,7 @@ type MarkState = "idle" | "working" | "done";
 export function MarkGlyph({ state, className }: { state: MarkState; className?: string }) {
   const glowId = useId();
   const working = state === "working";
-  const bracket = state === "idle" ? "var(--line-strong)" : "var(--foreground)";
+  const bracket = state === "idle" ? "var(--muted-foreground)" : "var(--foreground)";
 
   return (
     <svg viewBox="0 0 40 32" aria-hidden="true" className={cn("overflow-visible", className)}>
@@ -68,6 +68,19 @@ export function MarkGlyph({ state, className }: { state: MarkState; className?: 
         style={working ? { animation: `bracket-right 1.6s ${EASE} infinite` } : undefined}
         className="transition-[stroke] duration-300"
       />
+      {state === "idle" && (
+        <rect
+          x={MARK_CORE.x + 0.6}
+          y={MARK_CORE.y + 0.6}
+          width={MARK_CORE.size - 1.2}
+          height={MARK_CORE.size - 1.2}
+          rx={MARK_CORE.radius}
+          fill="none"
+          stroke="var(--subtle)"
+          strokeWidth="1.4"
+          strokeDasharray="2 2"
+        />
+      )}
       {state !== "idle" && (
         <rect
           x={MARK_CORE.x}

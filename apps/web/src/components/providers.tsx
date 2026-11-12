@@ -5,6 +5,7 @@ import { SmartWalletsProvider } from "@privy-io/react-auth/smart-wallets";
 import { WagmiProvider } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
+import { SignInProvider } from "@/components/auth/sign-in";
 import { MARK_CORE, MARK_LEFT_BRACKET, MARK_RIGHT_BRACKET } from "@/components/brand";
 import { LocalCurrencyProvider } from "@/hooks/use-local-currency";
 import { appChain, publicEnv } from "@/lib/env";
@@ -41,6 +42,7 @@ export function Providers({ children }: { children: ReactNode }) {
       clientId={publicEnv.NEXT_PUBLIC_PRIVY_CLIENT_ID}
       config={{
         // Web2.5: email/Google crean una embedded wallet invisible; usuarios cripto conectan su wallet.
+        // Email y Google entran por nuestra ventana (`SignInProvider`); la de Privy queda solo para wallets.
         loginMethods: ["email", "google", "wallet"],
         appearance: {
           theme: "#151719",
@@ -62,7 +64,9 @@ export function Providers({ children }: { children: ReactNode }) {
       <SmartWalletsProvider>
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={wagmiConfig}>
-            <LocalCurrencyProvider>{children}</LocalCurrencyProvider>
+            <LocalCurrencyProvider>
+              <SignInProvider>{children}</SignInProvider>
+            </LocalCurrencyProvider>
           </WagmiProvider>
         </QueryClientProvider>
       </SmartWalletsProvider>

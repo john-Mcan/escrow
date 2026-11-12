@@ -12,15 +12,17 @@ import {
   USDC_INPUT_PATTERN,
 } from "@escrow/shared";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon, ArrowUpRightIcon, CalendarPlusIcon, PlusIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowUpRightIcon, CalendarIcon, PlusIcon, TextIcon, XIcon } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useReadContract } from "wagmi";
 import { DetailRow } from "@/components/disclosure";
+import { MilestoneNode } from "@/components/escrow/milestone-track";
 import { ShareLink } from "@/components/escrow/share-link";
 import { MarkGlyph, Spinner } from "@/components/loaders";
-import { LocalAmountPicker, Usdc } from "@/components/money";
+import { LocalAmount, LocalAmountPicker, Usdc } from "@/components/money";
+import { Reveal, ShineBorder } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +31,7 @@ import { useApi } from "@/hooks/use-api";
 import { useMe } from "@/hooks/use-me";
 import type { CreateEscrowResponse, MeResponse } from "@/lib/api-types";
 import { appChain, escrowContractAddress } from "@/lib/env";
+import { formatDate } from "@/lib/format";
 import { describeTxError } from "@/lib/tx-errors";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +41,7 @@ interface MilestoneDraft {
   description: string;
   amount: string;
   dueDate: string;
-  showMore: boolean;
+  showDetail: boolean;
 }
 
 let nextKey = 1;
@@ -48,7 +51,7 @@ const emptyMilestone = (): MilestoneDraft => ({
   description: "",
   amount: "",
   dueDate: "",
-  showMore: false,
+  showDetail: false,
 });
 
 function safeAmount(value: string): bigint {
@@ -172,8 +175,8 @@ export function CreateEscrowForm() {
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_21rem]">
-      <div className="min-w-0 space-y-12">
-        <div className="space-y-3">
+      <div className="min-w-0 space-y-6">
+        <div className="space-y-3 pb-4">
           <Link
             href="/dashboard"
             className="group/back inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -184,21 +187,7 @@ export function CreateEscrowForm() {
           <p className="t-lead">Divide el trabajo en hitos. Tu cliente deposita el total y tú cobras cada hito al entregarlo.</p>
         </div>
 
-        <Section title="Quién cobra" description="Así aparecerás en el link y en los emails que recibe tu cliente.">
-          <Field label="Tu nombre o el de tu negocio" htmlFor="displayName" error={errors.displayName}>
-            <Input
-              id="displayName"
-              value={displayName}
-              maxLength={80}
-              autoComplete="organization"
-              placeholder="Estudio Pampa"
-              onChange={(event) => setDisplayName(event.target.value)}
-              aria-invalid={!!errors.displayName}
-            />
-          </Field>
-        </Section>
-
-        <Section title="Qué cobras">
+        <Panel title="El acuerdo" description="Lo que verá tu cliente al abrir el link.">
           <Field label="Nombre del trabajo" htmlFor="title" error={errors.title}>
             <Input id="title" name="title" maxLength={140} placeholder="Rediseño del sitio web" aria-invalid={!!errors.title} />
           </Field>
@@ -207,40 +196,72 @@ export function CreateEscrowForm() {
               <Textarea id="description" name="description" maxLength={5000} rows={3} autoFocus />
             </Field>
           ) : (
-            <AddOptional onClick={() => setShowDescription(true)}>Agregar descripción</AddOptional>
+            <div className="-ml-3">
+              <AddOptional onClick={() => setShowDescription(true)}>Agregar descripción</AddOptional>
+            </div>
           )}
-          <Field
-            label="Email de tu cliente (opcional)"
-            htmlFor="payerEmail"
-            error={errors.payerEmail}
-            hint="Le enviamos el link y le avisamos de cada entrega."
-          >
-            <Input
-              id="payerEmail"
-              name="payerEmail"
-              type="email"
-              autoComplete="off"
-              placeholder="cliente@empresa.com"
-              aria-invalid={!!errors.payerEmail}
-            />
-          </Field>
-        </Section>
+          <div className="grid gap-5 border-t border-border pt-6 sm:grid-cols-2">
+            <Field
+              label="Tu nombre o el de tu negocio"
+              htmlFor="displayName"
+              error={errors.displayName}
+              hint="Así apareces en el link y en los emails."
+            >
+              <Input
+                id="displayName"
+                value={displayName}
+                maxLength={80}
+                autoComplete="organization"
+                placeholder="Estudio Pampa"
+                onChange={(event) => setDisplayName(event.target.value)}
+                aria-invalid={!!errors.displayName}
+              />
+            </Field>
+            <Field
+              label="Email de tu cliente (opcional)"
+              htmlFor="payerEmail"
+              error={errors.payerEmail}
+              hint="Le enviamos el link y le avisamos de cada entrega."
+            >
+              <Input
+                id="payerEmail"
+                name="payerEmail"
+                type="email"
+                autoComplete="off"
+                placeholder="cliente@empresa.com"
+                aria-invalid={!!errors.payerEmail}
+              />
+            </Field>
+          </div>
+        </Panel>
 
-        <Section
+        <Panel
           title="Hitos"
-          description={single ? "Con un solo hito, tu cliente libera el total al aprobar la entrega." : "Cada hito se cobra por separado."}
+          description={
+            single
+              ? "Con un solo hito, tu cliente libera el total al aprobar la entrega."
+              : "Cada hito es una entrega con su monto. Lo cobras cuando tu cliente la aprueba."
+          }
         >
-          {errors.milestones && <p className="text-sm text-destructive">{errors.milestones}</p>}
-          <ol className="divide-y divide-border border-y border-border">
+          {errors.milestones && (
+            <Reveal>
+              <p className="text-sm text-destructive">{errors.milestones}</p>
+            </Reveal>
+          )}
+          <ol className="-mt-1 divide-y divide-border">
             {milestones.map((milestone, index) => (
-              <li key={milestone.key} className="space-y-4 py-6 animate-in fade-in-0 slide-in-from-top-1 duration-300">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-[0.9375rem]">Hito {index + 1}</h3>
+              <li key={milestone.key} className="space-y-4 py-6 first:pt-0 animate-in fade-in-0 slide-in-from-top-1 duration-300">
+                <div className="flex min-h-8 items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-3 text-[0.9375rem]">
+                    <MilestoneNode status={safeAmount(milestone.amount) > 0n ? "funded" : "pending"} />
+                    Hito {index + 1}
+                  </h3>
                   {!single && (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
+                      className="text-muted-foreground"
                       onClick={() => setMilestones((current) => current.filter((m) => m.key !== milestone.key))}
                     >
                       <XIcon /> Quitar
@@ -262,7 +283,12 @@ export function CreateEscrowForm() {
                       aria-invalid={!!errors[`milestones.${index}.title`]}
                     />
                   </Field>
-                  <Field label="Monto en USDC" htmlFor={`m-${milestone.key}-amount`} error={errors[`milestones.${index}.amount`]}>
+                  <Field
+                    label="Monto en USDC"
+                    htmlFor={`m-${milestone.key}-amount`}
+                    error={errors[`milestones.${index}.amount`]}
+                    hint={safeAmount(milestone.amount) > 0n && <LocalAmount amount={safeAmount(milestone.amount)} className="block text-right" />}
+                  >
                     <Input
                       id={`m-${milestone.key}-amount`}
                       value={milestone.amount}
@@ -274,43 +300,53 @@ export function CreateEscrowForm() {
                     />
                   </Field>
                 </div>
-                {milestone.showMore ? (
-                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_11rem]">
-                    <Field label="Detalle (opcional)" htmlFor={`m-${milestone.key}-description`}>
-                      <Textarea
-                        id={`m-${milestone.key}-description`}
-                        value={milestone.description}
-                        maxLength={5000}
-                        rows={2}
-                        onChange={(e) => update(milestone.key, { description: e.target.value })}
-                      />
-                    </Field>
-                    <Field label="Entrega estimada" htmlFor={`m-${milestone.key}-due`} error={errors[`milestones.${index}.dueDate`]}>
-                      <Input
-                        id={`m-${milestone.key}-due`}
-                        type="date"
-                        value={milestone.dueDate}
-                        onChange={(e) => update(milestone.key, { dueDate: e.target.value })}
-                      />
-                    </Field>
-                  </div>
-                ) : (
-                  <AddOptional onClick={() => update(milestone.key, { showMore: true })} icon={<CalendarPlusIcon />}>
-                    Agregar detalle o fecha de entrega
-                  </AddOptional>
+                {milestone.showDetail && (
+                  <Field
+                    label="Detalle (opcional)"
+                    htmlFor={`m-${milestone.key}-description`}
+                    hint="Qué incluye la entrega, en qué formato o cuántas revisiones."
+                  >
+                    <Textarea
+                      id={`m-${milestone.key}-description`}
+                      value={milestone.description}
+                      maxLength={5000}
+                      rows={2}
+                      autoFocus
+                      className="min-h-16"
+                      onChange={(e) => update(milestone.key, { description: e.target.value })}
+                    />
+                  </Field>
+                )}
+                <div className="-ml-3 flex flex-wrap items-center gap-x-1 gap-y-1">
+                  {!milestone.showDetail && (
+                    <AddOptional onClick={() => update(milestone.key, { showDetail: true })} icon={<TextIcon />}>
+                      Agregar detalle
+                    </AddOptional>
+                  )}
+                  <DueDatePicker
+                    id={`m-${milestone.key}-due`}
+                    value={milestone.dueDate}
+                    onChange={(dueDate) => update(milestone.key, { dueDate })}
+                  />
+                </div>
+                {errors[`milestones.${index}.dueDate`] && (
+                  <Reveal>
+                    <p className="text-sm text-destructive">{errors[`milestones.${index}.dueDate`]}</p>
+                  </Reveal>
                 )}
               </li>
             ))}
           </ol>
-          <Button
+          <button
             type="button"
-            variant="outline"
             disabled={milestones.length >= MAX_MILESTONES}
             onClick={() => setMilestones((current) => [...current, emptyMilestone()])}
+            className="group/add flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong text-sm font-medium text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-seal-soft hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
-            <PlusIcon /> Agregar otro hito
-          </Button>
-        </Section>
+            <PlusIcon className="size-4 transition-transform duration-200 group-hover/add:rotate-90" aria-hidden="true" />
+            {milestones.length >= MAX_MILESTONES ? `Máximo ${MAX_MILESTONES} hitos` : "Agregar otro hito"}
+          </button>
+        </Panel>
       </div>
 
       <aside className="lg:sticky lg:top-24 lg:h-fit">
@@ -328,7 +364,7 @@ export function CreateEscrowForm() {
             {preview && (
               <dl className="text-sm">
                 <DetailRow label={`Comisión de extan (${formatBps(Number(feeBps))})`}>
-                  <span className="amount">−{formatUsdc(preview.fee)}</span>
+                  <span className="amount">{preview.fee > 0n && "−"}{formatUsdc(preview.fee)}</span>
                 </DetailRow>
                 <DetailRow label="Recibes en total" className="font-medium">
                   <Usdc amount={preview.payeeAmount} unitClassName="text-muted-foreground" />
@@ -349,10 +385,11 @@ export function CreateEscrowForm() {
   );
 }
 
-function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
-  const id = `section-${title.toLowerCase().replace(/\s+/g, "-")}`;
+/** Grupo de campos en una superficie propia: un título, una línea que explica para qué sirve y los campos. */
+function Panel({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+  const id = `panel-${title.toLowerCase().replace(/\s+/g, "-")}`;
   return (
-    <section aria-labelledby={id} className="space-y-5">
+    <section aria-labelledby={id} className="space-y-6 rounded-2xl border border-border bg-surface p-6 surface-edge sm:p-8">
       <div className="space-y-1">
         <h2 id={id}>{title}</h2>
         {description && <p className="text-muted-foreground">{description}</p>}
@@ -364,9 +401,77 @@ function Section({ title, description, children }: { title: string; description?
 
 function AddOptional({ onClick, children, icon }: { onClick: () => void; children: ReactNode; icon?: ReactNode }) {
   return (
-    <Button type="button" variant="ghost" size="sm" className="-ml-3" onClick={onClick}>
+    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={onClick}>
       {icon ?? <PlusIcon />} {children}
     </Button>
+  );
+}
+
+/** Hoy en la zona del navegador, como `YYYY-MM-DD` (el mínimo del calendario). */
+function todayIso(): string {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+}
+
+/**
+ * Fecha de entrega como acción secundaria: un botón que muestra la fecha ya escrita ("17 nov 2026") y abre el
+ * calendario del sistema. El `<input type="date">` queda oculto bajo el botón para que el calendario se ancle ahí.
+ */
+function DueDatePicker({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    const input = inputRef.current;
+    if (!input) return;
+    try {
+      input.showPicker();
+    } catch {
+      input.focus();
+    }
+  }
+
+  return (
+    <div className="relative inline-flex items-center">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={openPicker}
+        className={value ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+      >
+        <CalendarIcon />
+        {value ? (
+          <span>
+            Entrega estimada: <span className="font-medium">{formatDate(value)}</span>
+          </span>
+        ) : (
+          "Fecha de entrega"
+        )}
+      </Button>
+      {value && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground"
+          onClick={() => onChange("")}
+          aria-label="Quitar la fecha de entrega"
+        >
+          <XIcon />
+        </Button>
+      )}
+      <input
+        ref={inputRef}
+        id={id}
+        type="date"
+        min={todayIso()}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-3 size-px opacity-0 [color-scheme:dark]"
+      />
+    </div>
   );
 }
 
@@ -380,17 +485,22 @@ function Field({
   label: string;
   htmlFor: string;
   error?: string;
-  hint?: string;
+  hint?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className="space-y-2">
       <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
+      <div className="group/field relative rounded-[10px]">
+        {children}
+        <ShineBorder className="opacity-0 transition-opacity duration-200 group-focus-within/field:opacity-100" />
+      </div>
       {error ? (
-        <p className="text-sm text-destructive">{error}</p>
+        <Reveal>
+          <p className="text-sm text-destructive">{error}</p>
+        </Reveal>
       ) : hint ? (
-        <p className="text-sm text-muted-foreground">{hint}</p>
+        <div className="text-sm text-muted-foreground">{hint}</div>
       ) : null}
     </div>
   );

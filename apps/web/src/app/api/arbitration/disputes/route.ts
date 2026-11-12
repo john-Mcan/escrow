@@ -39,7 +39,10 @@ export const GET = withErrorHandling(async (request: Request) => {
           .eq("action_type", "dispute_opened")
           .in("milestone_id", ids),
       ])
-    : [{ data: [], error: null }, { data: [], error: null }];
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
 
   const evidenceRows = assertDb(evidence, "load evidence");
   const openingRows = assertDb(openings, "load dispute openings");

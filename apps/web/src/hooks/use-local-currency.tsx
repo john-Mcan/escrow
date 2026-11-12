@@ -2,7 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { detectLocalCurrency, formatLocalAmount, isLocalCurrency, type LocalCurrencyCode, type RatesResponse } from "@/lib/currency";
+import {
+  detectLocalCurrency,
+  formatLocalAmount,
+  isLocalCurrency,
+  type LocalCurrencyCode,
+  type RatesResponse,
+} from "@/lib/currency";
 import { apiFetch } from "./use-api";
 
 const STORAGE_KEY = "extan:currency";

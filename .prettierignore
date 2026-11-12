@@ -1,0 +1,14 @@
+# Generados
+packages/shared/src/database.types.ts
+packages/shared/src/abi/
+pnpm-lock.yaml
+
+# Builds y dependencias
+node_modules/
+.next/
+.turbo/
+packages/contracts/
+
+# Supabase (SQL fuera del alcance de Prettier) y documentación (tablas escritas a mano)
+supabase/
+*.md

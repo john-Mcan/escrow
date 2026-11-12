@@ -9,7 +9,15 @@ import { SpotlightCard } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 
 /** Muestra `children` solo con sesión iniciada; si no, una invitación a ingresar. */
-export function SignInGate({ title, description, children }: { title: string; description: string; children: ReactNode }) {
+export function SignInGate({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
   const { ready, authenticated } = usePrivy();
   const signIn = useSignIn();
 
@@ -30,7 +38,9 @@ export function SignInGate({ title, description, children }: { title: string; de
             <Button size="xl" className="w-full" onClick={() => signIn()}>
               Ingresar con tu email
             </Button>
-            <p className="mt-4 text-sm text-subtle">También puedes usar Google o tu wallet. Si es tu primera vez, creamos tu cuenta.</p>
+            <p className="mt-4 text-sm text-subtle">
+              También puedes usar Google o tu wallet. Si es tu primera vez, creamos tu cuenta.
+            </p>
           </div>
         </SpotlightCard>
       </div>

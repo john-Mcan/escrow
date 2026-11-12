@@ -4,7 +4,12 @@ import { computeSplit, formatUsdc, type PublicCheckout, type PublicCheckoutMiles
 import { ArrowUpRightIcon, Undo2Icon, UnlockIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ConfirmTxDialog, DeliverableDialog, DisputeDialog, EvidenceDialog } from "@/components/escrow/milestone-dialogs";
+import {
+  ConfirmTxDialog,
+  DeliverableDialog,
+  DisputeDialog,
+  EvidenceDialog,
+} from "@/components/escrow/milestone-dialogs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EscrowTransactions } from "@/hooks/use-escrow-transactions";
@@ -27,7 +32,15 @@ interface MilestoneActionsProps {
  * Qué sigue en un hito para quien lo mira: una frase que explica el momento y solo las acciones que le tocan,
  * con la principal destacada.
  */
-export function MilestoneActions({ checkout, milestone, privateMilestone, role, tx, identityPending, providerName }: MilestoneActionsProps) {
+export function MilestoneActions({
+  checkout,
+  milestone,
+  privateMilestone,
+  role,
+  tx,
+  identityPending,
+  providerName,
+}: MilestoneActionsProps) {
   const onchainId = checkout.onchain_escrow_id;
   const amount = BigInt(milestone.amount);
   const feeBps = checkout.platform_fee_bps ?? 0;
@@ -167,7 +180,8 @@ export function MilestoneActions({ checkout, milestone, privateMilestone, role, 
 
   if (status === "disputed") {
     if (isParty) {
-      guidance = "El dinero de este hito está congelado. Un árbitro revisará lo que cuenten ambas partes y decidirá cómo repartirlo.";
+      guidance =
+        "El dinero de este hito está congelado. Un árbitro revisará lo que cuenten ambas partes y decidirá cómo repartirlo.";
       buttons.push(<EvidenceDialog key="evidence" escrowId={checkout.id} milestone={milestone} />);
     } else if (role === "arbitration") {
       guidance = "Disputa abierta: revisa la evidencia y resuélvela desde el panel.";
@@ -190,7 +204,9 @@ export function MilestoneActions({ checkout, milestone, privateMilestone, role, 
 
   return (
     <div className="mt-4 space-y-3">
-      {guidance && <p className={cn("text-[0.9375rem]", yourTurn ? "text-foreground" : "text-muted-foreground")}>{guidance}</p>}
+      {guidance && (
+        <p className={cn("text-[0.9375rem]", yourTurn ? "text-foreground" : "text-muted-foreground")}>{guidance}</p>
+      )}
       {visibleButtons.length > 0 && <div className="flex flex-wrap items-center gap-2">{visibleButtons}</div>}
     </div>
   );

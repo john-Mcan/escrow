@@ -29,8 +29,8 @@ export function ReceiveUsdc({ address }: { address: string }) {
         <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-caution" aria-hidden="true" />
         <span>
           Envía solo <strong className="font-medium text-foreground">USDC</strong> por la red{" "}
-          <strong className="font-medium text-foreground">{testnet ? "Base Sepolia" : "Base"}</strong>. Si tu exchange te
-          pide elegir red, elige esa; otras redes o monedas no llegarán a tu cuenta.
+          <strong className="font-medium text-foreground">{testnet ? "Base Sepolia" : "Base"}</strong>. Si tu exchange
+          te pide elegir red, elige esa; otras redes o monedas no llegarán a tu cuenta.
         </span>
       </p>
       {testnet && (

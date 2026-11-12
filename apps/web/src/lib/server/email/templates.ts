@@ -178,7 +178,9 @@ export function fundedForPayerEmail(ctx: EscrowContext & { total: string; receip
   });
 }
 
-export function deliverableEmail(ctx: EscrowContext & { milestoneTitle: string; amount: string; notes: string | null }) {
+export function deliverableEmail(
+  ctx: EscrowContext & { milestoneTitle: string; amount: string; notes: string | null },
+) {
   return renderEmail({
     subject: `Entrega lista para revisar: ${ctx.milestoneTitle}`,
     preheader: `${ctx.providerName} entregó un hito de ${ctx.amount} USDC`,
@@ -201,14 +203,18 @@ export function releasedEmail(
     preheader: "Tu cliente liberó el pago y ya está en tu cuenta",
     heading: "Recibiste un pago",
     highlight: { label: ctx.milestoneTitle, value: `${ctx.payeeAmount} USDC` },
-    paragraphs: [`Tu cliente aprobó la entrega de "${ctx.milestoneTitle}" (${ctx.title}). El pago ya está en tu cuenta de extan.`],
+    paragraphs: [
+      `Tu cliente aprobó la entrega de "${ctx.milestoneTitle}" (${ctx.title}). El pago ya está en tu cuenta de extan.`,
+    ],
     details: [{ label: "Comisión de extan", value: `${ctx.fee} USDC` }],
     cta: { label: "Ver el acuerdo", url: ctx.checkoutUrl },
     receiptUrl: ctx.receiptUrl,
   });
 }
 
-export function refundedEmail(ctx: EscrowContext & { milestoneTitle: string; amount: string; receiptUrl: string | null }) {
+export function refundedEmail(
+  ctx: EscrowContext & { milestoneTitle: string; amount: string; receiptUrl: string | null },
+) {
   return renderEmail({
     subject: `Reembolso: ${ctx.amount} USDC por "${ctx.milestoneTitle}"`,
     preheader: "Te devolvieron el 100% de un hito",
@@ -226,7 +232,9 @@ export function disputeOpenedEmail(
   ctx: EscrowContext & { milestoneTitle: string; amount: string; openedBy: string; forArbitration?: boolean },
 ) {
   return renderEmail({
-    subject: ctx.forArbitration ? `[Arbitraje] Nueva disputa en "${ctx.title}"` : `Disputa abierta en "${ctx.milestoneTitle}"`,
+    subject: ctx.forArbitration
+      ? `[Arbitraje] Nueva disputa en "${ctx.title}"`
+      : `Disputa abierta en "${ctx.milestoneTitle}"`,
     preheader: `${ctx.amount} USDC quedaron congelados`,
     heading: ctx.forArbitration ? "Hay una disputa que requiere arbitraje" : "Se abrió una disputa",
     highlight: { label: "Congelado", value: `${ctx.amount} USDC` },
@@ -254,7 +262,9 @@ export function disputeResolvedEmail(
     subject: `Disputa resuelta: "${ctx.milestoneTitle}"`,
     preheader: "El árbitro repartió el dinero del hito",
     heading: "La disputa fue resuelta",
-    paragraphs: [`El árbitro resolvió la disputa del hito "${ctx.milestoneTitle}" de "${ctx.title}". El dinero ya se transfirió.`],
+    paragraphs: [
+      `El árbitro resolvió la disputa del hito "${ctx.milestoneTitle}" de "${ctx.title}". El dinero ya se transfirió.`,
+    ],
     details: [
       { label: "Para el cliente", value: `${ctx.payerAmount} USDC` },
       { label: "Para el proveedor", value: `${ctx.payeeAmount} USDC` },

@@ -30,7 +30,10 @@ export function MilestoneNode({ status, className }: { status: MilestoneStatus; 
   return (
     <span className={cn("relative inline-grid place-items-center", className)} aria-hidden="true">
       {node.ping && (
-        <span className="absolute inset-0 m-auto size-3 rounded-[3px] bg-vault/50" style={{ animation: "ring-ping 2.2s ease-out infinite" }} />
+        <span
+          className="absolute inset-0 m-auto size-3 rounded-[3px] bg-vault/50"
+          style={{ animation: "ring-ping 2.2s ease-out infinite" }}
+        />
       )}
       <svg viewBox="0 0 40 32" className="relative h-6 w-[1.875rem] overflow-visible">
         <defs>
@@ -113,7 +116,10 @@ export function MilestoneTrack({
   chainId,
   renderExtra,
 }: {
-  milestones: Pick<PublicCheckoutMilestone, "id" | "title" | "amount" | "status" | "description" | "due_date" | "tx_hash_settled">[];
+  milestones: Pick<
+    PublicCheckoutMilestone,
+    "id" | "title" | "amount" | "status" | "description" | "due_date" | "tx_hash_settled"
+  >[];
   chainId: number;
   renderExtra?: (index: number) => ReactNode;
 }) {
@@ -130,12 +136,21 @@ export function MilestoneTrack({
             <div className="min-w-0">
               <div className="flex items-start justify-between gap-x-6">
                 <div className="min-w-0">
-                  <h3 className={cn("text-lg", milestone.status === "refunded" && "text-muted-foreground")}>{milestone.title}</h3>
+                  <h3 className={cn("text-lg", milestone.status === "refunded" && "text-muted-foreground")}>
+                    {milestone.title}
+                  </h3>
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
                     <MilestoneStatusText status={milestone.status} />
-                    {!settled && milestone.due_date && <span className="t-meta">Entrega estimada {formatDate(milestone.due_date)}</span>}
+                    {!settled && milestone.due_date && (
+                      <span className="t-meta">Entrega estimada {formatDate(milestone.due_date)}</span>
+                    )}
                     {settled && milestone.tx_hash_settled && (
-                      <TxLink chainId={chainId} hash={milestone.tx_hash_settled} label="Comprobante" className="text-[0.8125rem]" />
+                      <TxLink
+                        chainId={chainId}
+                        hash={milestone.tx_hash_settled}
+                        label="Comprobante"
+                        className="text-[0.8125rem]"
+                      />
                     )}
                   </div>
                 </div>
@@ -153,7 +168,9 @@ export function MilestoneTrack({
                 </div>
               </div>
               {milestone.description && (
-                <p className="mt-3 max-w-prose text-[0.9375rem] whitespace-pre-line text-muted-foreground">{milestone.description}</p>
+                <p className="mt-3 max-w-prose text-[0.9375rem] whitespace-pre-line text-muted-foreground">
+                  {milestone.description}
+                </p>
               )}
               {renderExtra?.(index)}
             </div>

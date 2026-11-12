@@ -91,7 +91,13 @@ export interface DisputeItem {
   payeeAddress: string;
   payerEmail: string | null;
   payeeEmail: string | null;
-  milestone: { index: number; title: string; amount: string; deliverableUrl: string | null; deliverableNotes: string | null };
+  milestone: {
+    index: number;
+    title: string;
+    amount: string;
+    deliverableUrl: string | null;
+    deliverableNotes: string | null;
+  };
   evidence: EvidenceItem[];
   openedAt: string | null;
 }

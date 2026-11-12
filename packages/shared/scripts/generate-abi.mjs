@@ -8,7 +8,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 const contractsOut = resolve(here, "../../contracts/out");
 const abiDir = resolve(here, "../src/abi");
 
-const targets = [{ artifact: "MilestoneEscrow.sol/MilestoneEscrow.json", file: "milestone-escrow.ts", name: "milestoneEscrowAbi" }];
+const targets = [
+  { artifact: "MilestoneEscrow.sol/MilestoneEscrow.json", file: "milestone-escrow.ts", name: "milestoneEscrowAbi" },
+];
 
 for (const { artifact, file, name } of targets) {
   const { abi } = JSON.parse(await readFile(resolve(contractsOut, artifact), "utf8"));

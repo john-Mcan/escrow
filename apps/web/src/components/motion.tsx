@@ -82,7 +82,15 @@ export function SpotlightCard({
  * Una luz que recorre el borde del padre (que necesita `relative` y radio). Se usa en el campo con foco: indica
  * dónde se está escribiendo sin cambiar el tamaño del borde.
  */
-export function ShineBorder({ className, duration = 6, width = 1.5 }: { className?: string; duration?: number; width?: number }) {
+export function ShineBorder({
+  className,
+  duration = 6,
+  width = 1.5,
+}: {
+  className?: string;
+  duration?: number;
+  width?: number;
+}) {
   return (
     <span
       aria-hidden="true"
@@ -90,13 +98,15 @@ export function ShineBorder({ className, duration = 6, width = 1.5 }: { classNam
         "pointer-events-none absolute inset-0 rounded-[inherit] will-change-[background-position] motion-safe:animate-shine motion-reduce:hidden",
         className,
       )}
-      style={{
-        "--duration": `${duration}s`,
-        padding: `${width}px`,
-        backgroundImage: "radial-gradient(transparent, transparent, var(--primary), transparent, transparent)",
-        backgroundSize: "300% 300%",
-        ...RING_MASK,
-      } as CSSProperties}
+      style={
+        {
+          "--duration": `${duration}s`,
+          padding: `${width}px`,
+          backgroundImage: "radial-gradient(transparent, transparent, var(--primary), transparent, transparent)",
+          backgroundSize: "300% 300%",
+          ...RING_MASK,
+        } as CSSProperties
+      }
     />
   );
 }

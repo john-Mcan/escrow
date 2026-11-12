@@ -12,7 +12,11 @@ interface StepDef {
 
 /** Pasos de una operación de una sola transacción (liberar, reembolsar, disputar). */
 export const SINGLE_TX_STEPS: StepDef[] = [
-  { label: "Confirma la operación", hint: "Revisa y confirma en la ventana que se abrió.", stages: ["preparing", "authorizing", "signing"] },
+  {
+    label: "Confirma la operación",
+    hint: "Revisa y confirma en la ventana que se abrió.",
+    stages: ["preparing", "authorizing", "signing"],
+  },
   { label: "La red la registra", hint: "Suele tardar unos segundos.", stages: ["confirming"] },
   { label: "Actualizamos el acuerdo", hint: "Avisamos a la otra parte por email.", stages: ["syncing"] },
 ];
@@ -27,7 +31,11 @@ export const DEPOSIT_STEPS: StepDef[] = [
 
 /** Depósito con smart wallet: una sola confirmación. */
 export const DEPOSIT_STEPS_SINGLE: StepDef[] = [
-  { label: "Confirma el depósito", hint: "Revisa el monto y confirma en la ventana.", stages: ["preparing", "authorizing", "signing"] },
+  {
+    label: "Confirma el depósito",
+    hint: "Revisa el monto y confirma en la ventana.",
+    stages: ["preparing", "authorizing", "signing"],
+  },
   { label: "La red registra tu pago", hint: "Suele tardar unos segundos.", stages: ["confirming"] },
   { label: "Actualizamos el acuerdo", hint: "Avisamos a quien te cobra.", stages: ["syncing"] },
 ];

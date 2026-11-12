@@ -58,6 +58,8 @@ export const POST = withErrorHandling(async (request: Request, { params }: Param
   );
   await refreshEscrowStatus(escrow.id);
 
-  after(() => deliverNotification({ type: "deliverable", escrowId: escrow.id, milestoneIndex: index, activityId: activity.id }));
+  after(() =>
+    deliverNotification({ type: "deliverable", escrowId: escrow.id, milestoneIndex: index, activityId: activity.id }),
+  );
   return json({ ok: true });
 });

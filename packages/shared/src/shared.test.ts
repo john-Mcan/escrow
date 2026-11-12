@@ -119,7 +119,10 @@ describe("esquemas", () => {
   it("createEscrowSchema limita el total a 5.000 USDC", () => {
     const result = createEscrowSchema.safeParse({
       title: "Grande",
-      milestones: [{ title: "A", amount: "4000" }, { title: "B", amount: "1.000,000001" }],
+      milestones: [
+        { title: "A", amount: "4000" },
+        { title: "B", amount: "1.000,000001" },
+      ],
     });
     expect(result.success).toBe(false);
   });
@@ -161,7 +164,14 @@ describe("deriveEscrowStatus", () => {
 
 describe("ABI y explorador", () => {
   it("expone las funciones y eventos que usa la app", () => {
-    for (const name of ["createAndFundEscrow", "createAndFundEscrowWithPermit", "releaseMilestone", "refundMilestone", "raiseDispute", "resolveDispute"] as const) {
+    for (const name of [
+      "createAndFundEscrow",
+      "createAndFundEscrowWithPermit",
+      "releaseMilestone",
+      "refundMilestone",
+      "raiseDispute",
+      "resolveDispute",
+    ] as const) {
       expect(getAbiItem({ abi: milestoneEscrowAbi, name })).toBeDefined();
     }
     expect(toFunctionSelector(getAbiItem({ abi: milestoneEscrowAbi, name: "releaseMilestone" }))).toBe(
@@ -171,7 +181,11 @@ describe("ABI y explorador", () => {
 
   it("decodifica DisputeRaised", () => {
     const raisedBy = "0x00000000000000000000000000000000000000b0";
-    const topics = encodeEventTopics({ abi: milestoneEscrowAbi, eventName: "DisputeRaised", args: { escrowId: 7n, milestoneIndex: 1n, raisedBy } });
+    const topics = encodeEventTopics({
+      abi: milestoneEscrowAbi,
+      eventName: "DisputeRaised",
+      args: { escrowId: 7n, milestoneIndex: 1n, raisedBy },
+    });
     const decoded = decodeEventLog({ abi: milestoneEscrowAbi, topics: topics as [Hex, ...Hex[]], data: "0x" });
     expect(decoded).toMatchObject({ eventName: "DisputeRaised", args: { escrowId: 7n, milestoneIndex: 1n } });
   });

@@ -12,7 +12,9 @@ export function PasskeyPrompt() {
   const { authenticated, user } = usePrivy();
   const { showMfaEnrollmentModal } = useMfaEnrollment();
 
-  const hasEmbeddedWallet = user?.linkedAccounts.some((account) => account.type === "wallet" && account.walletClientType === "privy");
+  const hasEmbeddedWallet = user?.linkedAccounts.some(
+    (account) => account.type === "wallet" && account.walletClientType === "privy",
+  );
   if (!authenticated || !hasEmbeddedWallet || user?.mfaMethods.includes("passkey")) return null;
 
   return (

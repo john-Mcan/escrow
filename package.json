@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "format": "turbo run format",
+    "format": "prettier --write . && pnpm --filter @escrow/contracts format",
+    "format:check": "prettier --check . && pnpm --filter @escrow/contracts format:check",
     "contracts:build": "pnpm --filter @escrow/contracts build",
     "contracts:test": "pnpm --filter @escrow/contracts test",
     "db:start": "supabase start",
@@ -23,6 +24,7 @@
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts"
   },
   "devDependencies": {
+    "prettier": "^3.10.1",
     "turbo": "^2.5.8"
   }
 }

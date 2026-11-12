@@ -98,7 +98,11 @@ export const deliverableSchema = z.object({
 export type DeliverableInput = z.input<typeof deliverableSchema>;
 
 export const evidenceSchema = z.object({
-  milestoneIndex: z.number().int().min(0).max(MAX_MILESTONES - 1),
+  milestoneIndex: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_MILESTONES - 1),
   comment: z.string().trim().min(1, "Describe lo ocurrido").max(5000),
   attachmentUrl: httpsUrlSchema.optional(),
 });

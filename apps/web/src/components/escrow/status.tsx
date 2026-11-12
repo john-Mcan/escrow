@@ -27,9 +27,19 @@ const TONE_TEXT: Record<StatusTone, string> = {
 };
 
 /** Estado como texto con marcador (sin pastillas): se lee como parte de la línea, no como etiqueta. */
-export function StatusText({ tone, children, className }: { tone: StatusTone; children: ReactNode; className?: string }) {
+export function StatusText({
+  tone,
+  children,
+  className,
+}: {
+  tone: StatusTone;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <span className={cn("inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap", TONE_TEXT[tone], className)}>
+    <span
+      className={cn("inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap", TONE_TEXT[tone], className)}
+    >
       <span className={cn("size-2 shrink-0 rounded-[2px]", TONE_MARKER[tone])} aria-hidden="true" />
       {children}
     </span>

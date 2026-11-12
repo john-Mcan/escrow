@@ -46,7 +46,11 @@ export function HeroDemo() {
         </div>
         <p className="mt-6 text-xl font-semibold tracking-[-0.02em]">Rediseño de tienda online</p>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3">
-          <Usdc amount={TOTAL} className="text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]" unitClassName="text-base tracking-normal" />
+          <Usdc
+            amount={TOTAL}
+            className="text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]"
+            unitClassName="text-base tracking-normal"
+          />
           <LocalAmount amount={TOTAL} className="text-sm" />
         </div>
         <AmountBar
@@ -66,7 +70,11 @@ export function HeroDemo() {
                 </div>
                 <Usdc
                   amount={milestone.amount}
-                  className={status === "released" ? "font-semibold text-seal transition-colors duration-500" : "font-semibold transition-colors duration-500"}
+                  className={
+                    status === "released"
+                      ? "font-semibold text-seal transition-colors duration-500"
+                      : "font-semibold transition-colors duration-500"
+                  }
                   unitClassName="text-xs"
                 />
               </li>

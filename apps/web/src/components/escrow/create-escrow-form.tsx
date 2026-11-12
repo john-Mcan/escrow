@@ -18,7 +18,12 @@ import { useReadContract } from "wagmi";
 import { DetailRow } from "@/components/disclosure";
 import { AddOptional, Field, Panel } from "@/components/escrow/form-fields";
 import { type CreatedLink, LinkCreated } from "@/components/escrow/link-created";
-import { emptyMilestone, type MilestoneDraft, MilestoneDraftFields, safeAmount } from "@/components/escrow/milestone-draft-fields";
+import {
+  emptyMilestone,
+  type MilestoneDraft,
+  MilestoneDraftFields,
+  safeAmount,
+} from "@/components/escrow/milestone-draft-fields";
 import { Spinner } from "@/components/loaders";
 import { LocalAmountPicker, Usdc } from "@/components/money";
 import { Reveal } from "@/components/motion";
@@ -137,18 +142,32 @@ export function CreateEscrowForm() {
             href="/dashboard"
             className="group/back inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeftIcon className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5" /> Mis acuerdos
+            <ArrowLeftIcon className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5" /> Mis
+            acuerdos
           </Link>
           <h1>Nuevo link de cobro</h1>
-          <p className="t-lead">Divide el trabajo en hitos. Tu cliente deposita el total y tú cobras cada hito al entregarlo.</p>
+          <p className="t-lead">
+            Divide el trabajo en hitos. Tu cliente deposita el total y tú cobras cada hito al entregarlo.
+          </p>
         </div>
 
         <Panel title="El acuerdo" description="Lo que verá tu cliente al abrir el link.">
           <Field label="Nombre del trabajo" htmlFor="title" error={errors.title}>
-            <Input id="title" name="title" maxLength={140} placeholder="Rediseño del sitio web" aria-invalid={!!errors.title} />
+            <Input
+              id="title"
+              name="title"
+              maxLength={140}
+              placeholder="Rediseño del sitio web"
+              aria-invalid={!!errors.title}
+            />
           </Field>
           {showDescription ? (
-            <Field label="Descripción" htmlFor="description" error={errors.description} hint="Alcance, condiciones o lo que tu cliente deba saber.">
+            <Field
+              label="Descripción"
+              htmlFor="description"
+              error={errors.description}
+              hint="Alcance, condiciones o lo que tu cliente deba saber."
+            >
               <Textarea id="description" name="description" maxLength={5000} rows={3} autoFocus />
             </Field>
           ) : (
@@ -224,7 +243,10 @@ export function CreateEscrowForm() {
             onClick={() => setMilestones((current) => [...current, emptyMilestone()])}
             className="group/add flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong text-sm font-medium text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-seal-soft hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
-            <PlusIcon className="size-4 transition-transform duration-200 group-hover/add:rotate-90" aria-hidden="true" />
+            <PlusIcon
+              className="size-4 transition-transform duration-200 group-hover/add:rotate-90"
+              aria-hidden="true"
+            />
             {milestones.length >= MAX_MILESTONES ? `Máximo ${MAX_MILESTONES} hitos` : "Agregar otro hito"}
           </button>
         </Panel>
@@ -236,7 +258,10 @@ export function CreateEscrowForm() {
             <p className="text-sm text-muted-foreground">Tu cliente deposita</p>
             <Usdc
               amount={total}
-              className={cn("block text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]", overMax && "text-destructive")}
+              className={cn(
+                "block text-[2.25rem] leading-tight font-semibold tracking-[-0.035em]",
+                overMax && "text-destructive",
+              )}
               unitClassName="text-base tracking-normal"
             />
             <LocalAmountPicker amount={total} />
@@ -245,7 +270,10 @@ export function CreateEscrowForm() {
             {preview && (
               <dl className="text-sm">
                 <DetailRow label={`Comisión de extan (${formatBps(Number(feeBps))})`}>
-                  <span className="amount">{preview.fee > 0n && "−"}{formatUsdc(preview.fee)}</span>
+                  <span className="amount">
+                    {preview.fee > 0n && "−"}
+                    {formatUsdc(preview.fee)}
+                  </span>
                 </DetailRow>
                 <DetailRow label="Recibes en total" className="font-medium">
                   <Usdc amount={preview.payeeAmount} unitClassName="text-muted-foreground" />
@@ -257,7 +285,8 @@ export function CreateEscrowForm() {
               {pending ? "Creando tu link…" : "Crear link de cobro"}
             </Button>
             <p className={cn("text-xs", overMax ? "text-destructive" : "text-subtle")}>
-              Máximo {formatUsdc(DEFAULT_MAX_ESCROW_AMOUNT)} USDC por acuerdo. La comisión se descuenta solo de lo que recibes.
+              Máximo {formatUsdc(DEFAULT_MAX_ESCROW_AMOUNT)} USDC por acuerdo. La comisión se descuenta solo de lo que
+              recibes.
             </p>
           </div>
         </div>

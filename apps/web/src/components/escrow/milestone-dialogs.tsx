@@ -220,7 +220,9 @@ export function DisputeDialog({
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Cuéntale al árbitro qué se acordó y qué falta o no se cumplió."
               />
-              <p className="text-sm text-muted-foreground">Queda registrado y no se puede editar. Podrás agregar más después.</p>
+              <p className="text-sm text-muted-foreground">
+                Queda registrado y no se puede editar. Podrás agregar más después.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor={`dispute-url-${milestone.id}`}>Enlace a pruebas (opcional)</Label>
@@ -286,7 +288,9 @@ export function DeliverableDialog({
         queryClient.invalidateQueries({ queryKey: ["checkout", escrowId] }),
         queryClient.invalidateQueries({ queryKey: ["escrow-detail", escrowId] }),
       ]);
-      toast.success(isUpdate ? "Entrega actualizada. Avisamos a tu cliente." : "Entrega enviada. Avisamos a tu cliente por email.");
+      toast.success(
+        isUpdate ? "Entrega actualizada. Avisamos a tu cliente." : "Entrega enviada. Avisamos a tu cliente por email.",
+      );
       setOpen(false);
     } catch (error) {
       toast.error(describeTxError(error));
@@ -425,7 +429,10 @@ export function EvidenceDialog({ escrowId, milestone }: { escrowId: string; mile
 /** Error dentro de un diálogo, junto a la acción que falló. */
 function ErrorNote({ children }: { children: ReactNode }) {
   return (
-    <p role="alert" className="rounded-[10px] border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive">
+    <p
+      role="alert"
+      className="rounded-[10px] border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive"
+    >
       {children}
     </p>
   );

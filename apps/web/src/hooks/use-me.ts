@@ -15,7 +15,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export function useMe() {
   const { ready, authenticated, user } = usePrivy();
   const api = useApi();
-  const identityKey = [user?.smartWallet?.address, user?.wallet?.address, user?.email?.address, user?.google?.email].join("|");
+  const identityKey = [
+    user?.smartWallet?.address,
+    user?.wallet?.address,
+    user?.email?.address,
+    user?.google?.email,
+  ].join("|");
   const clientHasWallet = !!(user?.wallet?.address || user?.smartWallet?.address);
 
   return useQuery({

@@ -79,12 +79,17 @@ function idempotencyKey(job: NotificationJob): string {
   }
 }
 
-function buildMessages(job: NotificationJob, escrow: EscrowRecord, parties: Awaited<ReturnType<typeof resolveParties>>): Outgoing[] {
+function buildMessages(
+  job: NotificationJob,
+  escrow: EscrowRecord,
+  parties: Awaited<ReturnType<typeof resolveParties>>,
+): Outgoing[] {
   const env = getServerEnv();
   const checkoutUrl = `${env.NEXT_PUBLIC_APP_URL}/pay/${escrow.short_code}`;
   const ctx = { title: escrow.title, providerName: parties.providerName, checkoutUrl };
   const receiptUrl = "txHash" in job ? explorerTxUrl(escrow.chain_id as SupportedChainId, job.txHash) : null;
-  const milestone = "milestoneIndex" in job ? escrow.milestones.find((m) => m.milestone_index === job.milestoneIndex) : undefined;
+  const milestone =
+    "milestoneIndex" in job ? escrow.milestones.find((m) => m.milestone_index === job.milestoneIndex) : undefined;
   const milestoneTitle = milestone?.title ?? "Hito";
   const out: Outgoing[] = [];
   const push = (to: string | null, message: EmailMessage) => {
@@ -118,7 +123,13 @@ function buildMessages(job: NotificationJob, escrow: EscrowRecord, parties: Awai
     case "released":
       push(
         parties.payeeEmail,
-        releasedEmail({ ...ctx, milestoneTitle, payeeAmount: formatUsdc(job.payeeAmount), fee: formatUsdc(job.fee), receiptUrl }),
+        releasedEmail({
+          ...ctx,
+          milestoneTitle,
+          payeeAmount: formatUsdc(job.payeeAmount),
+          fee: formatUsdc(job.fee),
+          receiptUrl,
+        }),
       );
       break;
     case "refunded":
@@ -130,7 +141,10 @@ function buildMessages(job: NotificationJob, escrow: EscrowRecord, parties: Awai
       push(parties.payeeEmail, disputeOpenedEmail(base));
       push(parties.payerEmail, disputeOpenedEmail(base));
       for (const admin of env.ARBITRATION_ADMIN_EMAILS) {
-        push(admin, disputeOpenedEmail({ ...base, forArbitration: true, checkoutUrl: `${env.NEXT_PUBLIC_APP_URL}/arbitration` }));
+        push(
+          admin,
+          disputeOpenedEmail({ ...base, forArbitration: true, checkoutUrl: `${env.NEXT_PUBLIC_APP_URL}/arbitration` }),
+        );
       }
       break;
     }
@@ -150,7 +164,9 @@ function buildMessages(job: NotificationJob, escrow: EscrowRecord, parties: Awai
   }
 
   // Un destinatario no recibe el mismo correo dos veces (p. ej. si payer y payee comparten email).
-  return out.filter((message, index) => out.findIndex((m) => m.to === message.to && m.subject === message.subject) === index);
+  return out.filter(
+    (message, index) => out.findIndex((m) => m.to === message.to && m.subject === message.subject) === index,
+  );
 }
 
 /** Envía los correos de un evento. Nunca lanza: un fallo de email no debe revertir una reconciliación on-chain. */

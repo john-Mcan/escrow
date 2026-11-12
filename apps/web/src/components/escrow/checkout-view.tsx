@@ -32,7 +32,8 @@ export function CheckoutView({ initial }: { initial: PublicCheckout }) {
     queryKey: ["checkout", escrowId],
     queryFn: () => apiFetch<PublicCheckout>(`/api/checkout/${escrowId}`),
     initialData: initial,
-    refetchInterval: (query) => (query.state.data?.status === "completed" || query.state.data?.status === "cancelled" ? false : 15_000),
+    refetchInterval: (query) =>
+      query.state.data?.status === "completed" || query.state.data?.status === "cancelled" ? false : 15_000,
   });
 
   const { data: detail, isPending: detailPending } = useQuery({
@@ -94,7 +95,9 @@ export function CheckoutView({ initial }: { initial: PublicCheckout }) {
           <div className="space-y-3">
             <h1>{checkout.title}</h1>
             {checkout.description && (
-              <p className="max-w-prose text-[1.0625rem] whitespace-pre-line text-muted-foreground">{checkout.description}</p>
+              <p className="max-w-prose text-[1.0625rem] whitespace-pre-line text-muted-foreground">
+                {checkout.description}
+              </p>
             )}
           </div>
           {!isDraft && (
@@ -119,7 +122,9 @@ export function CheckoutView({ initial }: { initial: PublicCheckout }) {
         <div className="min-w-0 space-y-14 [grid-area:body]">
           <section aria-labelledby="milestones-heading" className="space-y-7">
             <div className="space-y-1">
-              <h2 id="milestones-heading">{checkout.milestones.length === 1 ? "Un hito" : `${checkout.milestones.length} hitos`}</h2>
+              <h2 id="milestones-heading">
+                {checkout.milestones.length === 1 ? "Un hito" : `${checkout.milestones.length} hitos`}
+              </h2>
               <p className="text-muted-foreground">
                 {role === "payee"
                   ? "Cobras cada hito cuando tu cliente aprueba la entrega."

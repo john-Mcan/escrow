@@ -8,10 +8,25 @@ const LINK =
   "group/tx inline-flex items-center gap-0.5 font-medium text-foreground underline decoration-line-strong underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/60";
 
 /** Comprobante público en Basescan (o el hash si la red no tiene explorador). */
-export function TxLink({ chainId, hash, label, className }: { chainId: number; hash: string; label?: string; className?: string }) {
+export function TxLink({
+  chainId,
+  hash,
+  label,
+  className,
+}: {
+  chainId: number;
+  hash: string;
+  label?: string;
+  className?: string;
+}) {
   const url = explorerTxUrl(chainId as SupportedChainId, hash as Hex);
   // Redes locales sin explorador: se muestra el hash (el texto del enlace no tendría destino).
-  if (!url) return <span className="font-mono text-[0.8125rem] text-muted-foreground" title={hash}>{shortAddress(hash)}</span>;
+  if (!url)
+    return (
+      <span className="font-mono text-[0.8125rem] text-muted-foreground" title={hash}>
+        {shortAddress(hash)}
+      </span>
+    );
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className={cn(LINK, className)}>
       {label ?? <span className="font-mono text-[0.8125rem]">{shortAddress(hash)}</span>}

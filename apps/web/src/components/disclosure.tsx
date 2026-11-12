@@ -32,7 +32,15 @@ export function Disclosure({
 }
 
 /** Fila etiqueta / valor para listas de detalles. */
-export function DetailRow({ label, children, className }: { label: ReactNode; children: ReactNode; className?: string }) {
+export function DetailRow({
+  label,
+  children,
+  className,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("flex items-baseline justify-between gap-4 py-1.5", className)}>
       <dt className="shrink-0 text-muted-foreground">{label}</dt>

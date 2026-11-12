@@ -9,7 +9,9 @@ const publicEnvSchema = z.object({
     .refine(isSupportedChainId, "NEXT_PUBLIC_CHAIN_ID debe ser 8453, 84532 o 31337")
     .transform((value) => value as SupportedChainId),
   NEXT_PUBLIC_BASE_RPC_URL: z.url().optional(),
-  NEXT_PUBLIC_PRIVY_APP_ID: z.string().length(25, "NEXT_PUBLIC_PRIVY_APP_ID debe ser el App ID de Privy (25 caracteres)"),
+  NEXT_PUBLIC_PRIVY_APP_ID: z
+    .string()
+    .length(25, "NEXT_PUBLIC_PRIVY_APP_ID debe ser el App ID de Privy (25 caracteres)"),
   NEXT_PUBLIC_PRIVY_CLIENT_ID: z.string().optional(),
   NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS: addressSchema,
   NEXT_PUBLIC_USDC_ADDRESS: addressSchema,

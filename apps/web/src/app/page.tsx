@@ -129,7 +129,11 @@ export default function HomePage() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <section id="como-funciona" aria-labelledby="how-heading" className="scroll-mt-24 border-t border-border py-20 lg:py-24">
+        <section
+          id="como-funciona"
+          aria-labelledby="how-heading"
+          className="scroll-mt-24 border-t border-border py-20 lg:py-24"
+        >
           <div className="max-w-2xl space-y-3">
             <h2 id="how-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
               Cómo funciona
@@ -152,7 +156,9 @@ export default function HomePage() {
             <h2 id="currency-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
               Tu cliente paga en su moneda y tú cobras en dólares
             </h2>
-            <p className="t-lead">Así viaja un pago de ejemplo, con el equivalente en tu moneda según el tipo de cambio de hoy.</p>
+            <p className="t-lead">
+              Así viaja un pago de ejemplo, con el equivalente en tu moneda según el tipo de cambio de hoy.
+            </p>
           </div>
           <Rise className="mt-14">
             <CurrencyFlow />
@@ -191,12 +197,17 @@ export default function HomePage() {
           </ul>
         </section>
 
-        <section aria-labelledby="trust-heading" className="grid gap-12 border-t border-border py-20 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20 lg:py-24">
+        <section
+          aria-labelledby="trust-heading"
+          className="grid gap-12 border-t border-border py-20 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20 lg:py-24"
+        >
           <div className="space-y-3">
             <h2 id="trust-heading" className="text-[2rem] tracking-[-0.03em] sm:text-[2.5rem]">
               Seguro para los dos lados
             </h2>
-            <p className="t-lead">Quien cobra sabe que el pago existe. Quien paga sabe que no lo pierde si algo sale mal.</p>
+            <p className="t-lead">
+              Quien cobra sabe que el pago existe. Quien paga sabe que no lo pierde si algo sale mal.
+            </p>
           </div>
           <div className="space-y-10">
             <dl className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
@@ -210,10 +221,10 @@ export default function HomePage() {
             <div className="border-t border-border pt-4">
               <Disclosure summary="Cómo funciona por dentro">
                 <p className="max-w-prose text-muted-foreground">
-                  Los pagos se hacen en USDC, un dólar digital emitido por Circle (1 USDC = 1 US$), sobre la red Base. El
-                  dinero queda en un contrato inteligente público y verificable: cada depósito, pago y reembolso tiene un
-                  comprobante en Basescan. Las disputas las resuelve un árbitro que firma con una cuenta multifirma y que
-                  nunca puede quedarse con los fondos.
+                  Los pagos se hacen en USDC, un dólar digital emitido por Circle (1 USDC = 1 US$), sobre la red Base.
+                  El dinero queda en un contrato inteligente público y verificable: cada depósito, pago y reembolso
+                  tiene un comprobante en Basescan. Las disputas las resuelve un árbitro que firma con una cuenta
+                  multifirma y que nunca puede quedarse con los fondos.
                 </p>
               </Disclosure>
             </div>

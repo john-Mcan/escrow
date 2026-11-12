@@ -189,10 +189,22 @@ function camera(aspect: number, horizon: number) {
   const nf = 1 / (zNear - zFar);
   // proyección · rotación (pitch) · traslación (-ojo), ya multiplicadas.
   const viewProj = new Float32Array([
-    f / aspect, 0, 0, 0,
-    0, f * c, (zFar + zNear) * nf * s, -s,
-    0, -f * s, (zFar + zNear) * nf * c, -c,
-    0, -f * c * EYE_HEIGHT, -(zFar + zNear) * nf * s * EYE_HEIGHT + 2 * zFar * zNear * nf, s * EYE_HEIGHT,
+    f / aspect,
+    0,
+    0,
+    0,
+    0,
+    f * c,
+    (zFar + zNear) * nf * s,
+    -s,
+    0,
+    -f * s,
+    (zFar + zNear) * nf * c,
+    -c,
+    0,
+    -f * c * EYE_HEIGHT,
+    -(zFar + zNear) * nf * s * EYE_HEIGHT + 2 * zFar * zNear * nf,
+    s * EYE_HEIGHT,
   ]);
   // Margen extra porque las olas también desplazan los puntos de lado.
   const spread: [number, number] = [c * tanH * 1.15, s * EYE_HEIGHT * tanH * 1.15];

@@ -12,7 +12,14 @@ import { DEPOSIT_STEPS, DEPOSIT_STEPS_SINGLE, TxProgress } from "@/components/es
 import { MarkGlyph, Spinner, WorkLine } from "@/components/loaders";
 import { LocalAmount, Usdc } from "@/components/money";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReceiveUsdc } from "@/components/wallet/receive-usdc";
 import { type EscrowTransactions, InsufficientBalanceError } from "@/hooks/use-escrow-transactions";
@@ -100,11 +107,13 @@ export function DepositDialog({
               <DialogHeader className="items-center pr-0">
                 <DialogTitle>Tu dinero está en garantía</DialogTitle>
                 <DialogDescription className="max-w-sm">
-                  {providerName} ya puede empezar. Cuando entregue cada hito te avisaremos por email para que lo revises y
-                  liberes ese pago.
+                  {providerName} ya puede empezar. Cuando entregue cada hito te avisaremos por email para que lo revises
+                  y liberes ese pago.
                 </DialogDescription>
               </DialogHeader>
-              {receipt && <TxLink chainId={checkout.chain_id} hash={receipt} label="Ver comprobante" className="text-sm" />}
+              {receipt && (
+                <TxLink chainId={checkout.chain_id} hash={receipt} label="Ver comprobante" className="text-sm" />
+              )}
             </div>
             <DialogFooter>
               <Button size="lg" className="w-full" onClick={() => onOpenChange(false)}>
@@ -136,9 +145,9 @@ export function DepositDialog({
             <DialogHeader>
               <DialogTitle>Carga USDC para depositar</DialogTitle>
               <DialogDescription>
-                Tienes <span className="amount text-foreground">{formatUsdc(balance)} USDC</span> y este acuerdo necesita{" "}
-                <span className="amount text-foreground">{formatUsdc(total)} USDC</span>. Envía la diferencia a tu cuenta
-                y continúa aquí mismo.
+                Tienes <span className="amount text-foreground">{formatUsdc(balance)} USDC</span> y este acuerdo
+                necesita <span className="amount text-foreground">{formatUsdc(total)} USDC</span>. Envía la diferencia a
+                tu cuenta y continúa aquí mismo.
               </DialogDescription>
             </DialogHeader>
             <BalanceMeter balance={balance} total={total} />
@@ -152,7 +161,8 @@ export function DepositDialog({
             <DialogHeader>
               <DialogTitle>Depositar en garantía</DialogTitle>
               <DialogDescription>
-                El dinero queda protegido en un contrato. {providerName} recibe cada parte solo cuando apruebas la entrega.
+                El dinero queda protegido en un contrato. {providerName} recibe cada parte solo cuando apruebas la
+                entrega.
               </DialogDescription>
             </DialogHeader>
 
@@ -191,16 +201,19 @@ export function DepositDialog({
             )}
 
             {error && (
-              <p role="alert" className="rounded-[10px] border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive">
+              <p
+                role="alert"
+                className="rounded-[10px] border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive"
+              >
                 {error}
               </p>
             )}
 
             <Disclosure summary="Qué pasa con mi dinero">
               <p className="text-muted-foreground">
-                El monto queda en un contrato público en la red Base, no en una cuenta de extan. Solo puede salir de tres
-                formas: cuando liberas un hito (va a {providerName}), cuando {providerName} cancela un hito (vuelve a ti,
-                completo) o cuando un árbitro resuelve una disputa.
+                El monto queda en un contrato público en la red Base, no en una cuenta de extan. Solo puede salir de
+                tres formas: cuando liberas un hito (va a {providerName}), cuando {providerName} cancela un hito (vuelve
+                a ti, completo) o cuando un árbitro resuelve una disputa.
               </p>
             </Disclosure>
 
@@ -224,8 +237,18 @@ function BalanceMeter({ balance, total }: { balance: bigint; total: bigint }) {
   const percent = total > 0n ? Math.min(100, Number((balance * 10_000n) / total) / 100) : 0;
   return (
     <div className="space-y-2">
-      <div className="h-1.5 overflow-hidden rounded-full bg-raised" role="progressbar" aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100} aria-label="Saldo disponible respecto del total">
-        <div className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out" style={{ width: `${percent}%` }} />
+      <div
+        className="h-1.5 overflow-hidden rounded-full bg-raised"
+        role="progressbar"
+        aria-valuenow={Math.round(percent)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Saldo disponible respecto del total"
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
+          style={{ width: `${percent}%` }}
+        />
       </div>
       <p className="flex justify-between text-sm text-muted-foreground">
         <span>Te faltan</span>

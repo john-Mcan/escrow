@@ -2,7 +2,16 @@
 
 import { Captcha, useLoginWithEmail, useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
 import { ArrowLeftIcon } from "lucide-react";
-import { createContext, type FormEvent, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  type FormEvent,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { OtpInput } from "@/components/auth/otp-input";
 import { MarkGlyph, Spinner } from "@/components/loaders";
@@ -60,7 +69,12 @@ export function SignInProvider({ children }: { children: ReactNode }) {
   return (
     <SignInContext.Provider value={signIn}>
       {children}
-      <SignInDialog open={open} onOpenChange={setOpen} options={options} startGoogle={() => oauth.initOAuth({ provider: "google" })} />
+      <SignInDialog
+        open={open}
+        onOpenChange={setOpen}
+        options={options}
+        startGoogle={() => oauth.initOAuth({ provider: "google" })}
+      />
     </SignInContext.Provider>
   );
 }
@@ -182,7 +196,9 @@ function SignInDialog({
         setError("Usaste todos los intentos de este código. Pide uno nuevo.");
       } else if (privyCode(cause) === "invalid_credentials") {
         const left = MAX_ATTEMPTS - used;
-        setError(`El código no coincide o ya venció. ${left === 1 ? "Te queda 1 intento." : `Te quedan ${left} intentos.`}`);
+        setError(
+          `El código no coincide o ya venció. ${left === 1 ? "Te queda 1 intento." : `Te quedan ${left} intentos.`}`,
+        );
       } else {
         setError("No pudimos verificar el código. Intenta de nuevo.");
       }
@@ -231,9 +247,12 @@ function SignInDialog({
             <div key="email" className="motion-safe:animate-rise">
               <header className="flex flex-col items-center text-center">
                 <MarkGlyph state={pending ? "working" : "done"} className="h-10 w-[3.125rem]" />
-                <DialogTitle className="mt-6 text-2xl tracking-[-0.025em]">{options.title ?? "Ingresa a extan"}</DialogTitle>
+                <DialogTitle className="mt-6 text-2xl tracking-[-0.025em]">
+                  {options.title ?? "Ingresa a extan"}
+                </DialogTitle>
                 <DialogDescription className="mt-2 text-muted-foreground">
-                  {options.description ?? "Con tu email, sin contraseña. Si es tu primera vez, creamos tu cuenta al instante."}
+                  {options.description ??
+                    "Con tu email, sin contraseña. Si es tu primera vez, creamos tu cuenta al instante."}
                 </DialogDescription>
               </header>
 
@@ -278,7 +297,14 @@ function SignInDialog({
                 <span className="h-px flex-1 bg-border" />o<span className="h-px flex-1 bg-border" />
               </div>
 
-              <Button type="button" variant="outline" size="xl" className="w-full" disabled={!!pending} onClick={continueWithGoogle}>
+              <Button
+                type="button"
+                variant="outline"
+                size="xl"
+                className="w-full"
+                disabled={!!pending}
+                onClick={continueWithGoogle}
+              >
                 {pending === "google" ? <Spinner /> : <GoogleMark />}
                 {pending === "google" ? "Abriendo Google…" : "Continuar con Google"}
               </Button>
@@ -371,7 +397,11 @@ function SignInDialog({
           )}
 
           {step === "done" && (
-            <div key="done" role="status" className="flex flex-col items-center py-8 text-center motion-safe:animate-rise">
+            <div
+              key="done"
+              role="status"
+              className="flex flex-col items-center py-8 text-center motion-safe:animate-rise"
+            >
               <MarkGlyph state="done" className="h-12 w-[3.75rem]" />
               <DialogTitle className="mt-6 text-2xl tracking-[-0.025em]">Listo, ya ingresaste</DialogTitle>
               <DialogDescription className="mt-2 text-muted-foreground">Preparando tu cuenta…</DialogDescription>
@@ -387,10 +417,22 @@ function SignInDialog({
 function GoogleMark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="size-[1.125rem]">
-      <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.46a5.52 5.52 0 0 1-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.81z" />
-      <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.88-3.01c-1.07.72-2.45 1.15-4.06 1.15-3.13 0-5.78-2.11-6.72-4.95H1.27v3.11A12 12 0 0 0 12 24z" />
-      <path fill="#FBBC05" d="M5.28 14.29A7.2 7.2 0 0 1 4.9 12c0-.8.14-1.57.38-2.29V6.6H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.4l4.01-3.11z" />
-      <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.59 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.6l4.01 3.11C6.22 6.86 8.87 4.75 12 4.75z" />
+      <path
+        fill="#4285F4"
+        d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.46a5.52 5.52 0 0 1-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.81z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.88-3.01c-1.07.72-2.45 1.15-4.06 1.15-3.13 0-5.78-2.11-6.72-4.95H1.27v3.11A12 12 0 0 0 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.28 14.29A7.2 7.2 0 0 1 4.9 12c0-.8.14-1.57.38-2.29V6.6H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.4l4.01-3.11z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.76 0 3.34.61 4.59 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.6l4.01 3.11C6.22 6.86 8.87 4.75 12 4.75z"
+      />
     </svg>
   );
 }

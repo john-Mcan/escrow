@@ -11,7 +11,10 @@ import { formatDate } from "@/lib/format";
 export function Panel({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   const id = `panel-${title.toLowerCase().replace(/\s+/g, "-")}`;
   return (
-    <section aria-labelledby={id} className="space-y-6 rounded-2xl border border-border bg-surface p-6 surface-edge sm:p-8">
+    <section
+      aria-labelledby={id}
+      className="space-y-6 rounded-2xl border border-border bg-surface p-6 surface-edge sm:p-8"
+    >
       <div className="space-y-1">
         <h2 id={id}>{title}</h2>
         {description && <p className="text-muted-foreground">{description}</p>}
@@ -54,9 +57,23 @@ export function Field({
 }
 
 /** Botón discreto que revela un campo opcional. */
-export function AddOptional({ onClick, children, icon }: { onClick: () => void; children: ReactNode; icon?: ReactNode }) {
+export function AddOptional({
+  onClick,
+  children,
+  icon,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+  icon?: ReactNode;
+}) {
   return (
-    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={onClick}>
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="text-muted-foreground hover:text-foreground"
+      onClick={onClick}
+    >
       {icon ?? <PlusIcon />} {children}
     </Button>
   );
@@ -72,7 +89,15 @@ function todayIso(): string {
  * Fecha de entrega como acción secundaria: un botón que muestra la fecha ya escrita ("17 nov 2026") y abre el
  * calendario del sistema. El `<input type="date">` queda oculto bajo el botón para que el calendario se ancle ahí.
  */
-export function DueDatePicker({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
+export function DueDatePicker({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function openPicker() {

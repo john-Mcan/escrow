@@ -52,7 +52,9 @@ export async function syncEscrowTransaction(escrowId: string, txHash: Hex) {
     throw new ApiError(422, "tx_reverted", "La transacción falló on-chain y no movió fondos.");
   }
 
-  const contractLogs = receipt.logs.filter((log) => isAddressEqual(log.address, env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS));
+  const contractLogs = receipt.logs.filter((log) =>
+    isAddressEqual(log.address, env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS),
+  );
   const events = decodeEscrowEvents(contractLogs);
   const ctx: SyncContext = { escrow: initial, txHash, applied: [], notifications: [] };
 
@@ -146,7 +148,13 @@ async function recordActivity(
   return inserted.length > 0;
 }
 
-function pushApplied(ctx: SyncContext, eventName: string, logIndex: number, milestoneIndex: number | null, isNew: boolean) {
+function pushApplied(
+  ctx: SyncContext,
+  eventName: string,
+  logIndex: number,
+  milestoneIndex: number | null,
+  isNew: boolean,
+) {
   ctx.applied.push({ eventName, logIndex, milestoneIndex, duplicate: !isNew });
 }
 
@@ -164,7 +172,9 @@ async function applyEscrowCreated(ctx: SyncContext, event: EventOf<"EscrowCreate
     mismatches.push("milestones");
   }
   if (mismatches.length > 0) {
-    throw new ApiError(422, "funding_mismatch", "El depósito on-chain no coincide con el acuerdo.", { fields: mismatches });
+    throw new ApiError(422, "funding_mismatch", "El depósito on-chain no coincide con el acuerdo.", {
+      fields: mismatches,
+    });
   }
 
   const onchainId = args.escrowId.toString();
@@ -207,7 +217,8 @@ async function applyEscrowCreated(ctx: SyncContext, event: EventOf<"EscrowCreate
     metadata: { onchain_escrow_id: onchainId, total_amount: args.totalAmount.toString(), fee_bps: args.feeBps },
   });
   pushApplied(ctx, event.eventName, event.logIndex, null, isNew);
-  if (isNew) ctx.notifications.push({ type: "funded", escrowId: escrow.id, txHash: ctx.txHash, logIndex: event.logIndex });
+  if (isNew)
+    ctx.notifications.push({ type: "funded", escrowId: escrow.id, txHash: ctx.txHash, logIndex: event.logIndex });
 }
 
 /** Marca un hito como liquidado salvo que ya lo esté (on-chain es la fuente de verdad; no hay regresiones). */

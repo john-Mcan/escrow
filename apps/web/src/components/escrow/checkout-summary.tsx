@@ -117,7 +117,11 @@ export function CheckoutSummary({
           </h2>
           {!isDraft && <EscrowStatus status={checkout.status} />}
         </div>
-        <Usdc amount={total} className="block text-[2.5rem] leading-tight font-semibold tracking-[-0.035em]" unitClassName="text-lg tracking-normal" />
+        <Usdc
+          amount={total}
+          className="block text-[2.5rem] leading-tight font-semibold tracking-[-0.035em]"
+          unitClassName="text-lg tracking-normal"
+        />
         <LocalAmountPicker amount={total} />
       </div>
 
@@ -217,7 +221,13 @@ export function CheckoutSummary({
 
       {/* Sigue montado tras el depósito (el acuerdo ya no es borrador) para mostrar la confirmación final. */}
       {(isDraft || depositOpen) && role !== "payee" && (
-        <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} checkout={checkout} tx={tx} providerName={providerName} />
+        <DepositDialog
+          open={depositOpen}
+          onOpenChange={setDepositOpen}
+          checkout={checkout}
+          tx={tx}
+          providerName={providerName}
+        />
       )}
     </section>
   );

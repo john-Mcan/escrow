@@ -152,7 +152,10 @@ export function ProgressSteps({ steps, className }: { steps: ProgressStep[]; cla
             className="relative grid grid-cols-[2.25rem_1fr] gap-x-3 pb-5 last:pb-0"
           >
             {!last && (
-              <span aria-hidden="true" className="absolute top-8 bottom-1 left-[1.125rem] w-px -translate-x-1/2 bg-border">
+              <span
+                aria-hidden="true"
+                className="absolute top-8 bottom-1 left-[1.125rem] w-px -translate-x-1/2 bg-border"
+              >
                 <span
                   className={cn(
                     "absolute inset-x-0 top-0 bg-primary transition-[height] duration-500 ease-out",

@@ -52,7 +52,9 @@ export function ActivityTimeline({
                 </div>
                 <p className="flex items-center gap-4 t-meta">
                   <time dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
-                  {item.txHash && <TxLink chainId={chainId} hash={item.txHash} label="Comprobante" className="text-[0.8125rem]" />}
+                  {item.txHash && (
+                    <TxLink chainId={chainId} hash={item.txHash} label="Comprobante" className="text-[0.8125rem]" />
+                  )}
                 </p>
               </div>
             </li>
@@ -67,8 +69,8 @@ export function ActivityTimeline({
             {evidence.map((item) => (
               <li key={item.id} className="border-l-2 border-caution/50 pl-4">
                 <p className="t-meta">
-                  {item.submittedBy ?? "Participante"} sobre &quot;{milestoneTitles.get(item.milestoneIndex) ?? "un hito"}&quot;,{" "}
-                  {formatDateTime(item.createdAt)}
+                  {item.submittedBy ?? "Participante"} sobre &quot;
+                  {milestoneTitles.get(item.milestoneIndex) ?? "un hito"}&quot;, {formatDateTime(item.createdAt)}
                 </p>
                 <p className="mt-1 whitespace-pre-line">{item.comment}</p>
                 {item.attachmentUrl && (
@@ -79,7 +81,10 @@ export function ActivityTimeline({
                     className="group/att mt-1 inline-flex items-center gap-0.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
                   >
                     Ver adjunto
-                    <ArrowUpRightIcon className="size-3.5 transition-transform group-hover/att:translate-x-0.5 group-hover/att:-translate-y-0.5" aria-hidden="true" />
+                    <ArrowUpRightIcon
+                      className="size-3.5 transition-transform group-hover/att:translate-x-0.5 group-hover/att:-translate-y-0.5"
+                      aria-hidden="true"
+                    />
                   </a>
                 )}
               </li>

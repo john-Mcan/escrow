@@ -8,14 +8,26 @@ import {
   type PublicCheckout,
   uuidToBytes32,
 } from "@escrow/shared";
-import { type SendTransactionModalUIOptions, useSendTransaction, useSignTypedData, useWallets } from "@privy-io/react-auth";
+import {
+  type SendTransactionModalUIOptions,
+  useSendTransaction,
+  useSignTypedData,
+  useWallets,
+} from "@privy-io/react-auth";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { type Address, encodeFunctionData, type Hex, parseSignature } from "viem";
 import { useConfig } from "wagmi";
-import { getAccount, readContract, sendTransaction, signTypedData, switchChain, waitForTransactionReceipt } from "wagmi/actions";
+import {
+  getAccount,
+  readContract,
+  sendTransaction,
+  signTypedData,
+  switchChain,
+  waitForTransactionReceipt,
+} from "wagmi/actions";
 import type { SyncResponse } from "@/lib/api-types";
 import { appChain, escrowContractAddress, usdcAddress } from "@/lib/env";
 import { apiFetch } from "./use-api";
@@ -134,7 +146,11 @@ export function useEscrowTransactions(escrowId: string) {
       const uiOptions: SendTransactionModalUIOptions = {
         description: copy.description,
         buttonText: copy.buttonText,
-        transactionInfo: { title: "Detalles", action: copy.action, contractInfo: { name: "Contrato de garantía de extan" } },
+        transactionInfo: {
+          title: "Detalles",
+          action: copy.action,
+          contractInfo: { name: "Contrato de garantía de extan" },
+        },
         successHeader: "Listo",
         successDescription: "Estamos confirmando la operación en la red.",
         isCancellable: true,
@@ -202,7 +218,12 @@ export function useEscrowTransactions(escrowId: string) {
       ]);
       if (nonce === null) return null;
       const domain = domainFields
-        ? { name: domainFields[1], version: domainFields[2], chainId: Number(domainFields[3]), verifyingContract: domainFields[4] }
+        ? {
+            name: domainFields[1],
+            version: domainFields[2],
+            chainId: Number(domainFields[3]),
+            verifyingContract: domainFields[4],
+          }
         : name && version
           ? { name, version, chainId: appChain.id, verifyingContract: usdcAddress }
           : null;
@@ -284,7 +305,11 @@ export function useEscrowTransactions(escrowId: string) {
         };
         const approveCall: Call = {
           to: usdcAddress,
-          data: encodeFunctionData({ abi: erc20PermitAbi, functionName: "approve", args: [escrowContractAddress, total] }),
+          data: encodeFunctionData({
+            abi: erc20PermitAbi,
+            functionName: "approve",
+            args: [escrowContractAddress, total],
+          }),
         };
 
         if (usesSmartWallet) return sendCalls([approveCall, createCall], copy);
@@ -341,7 +366,11 @@ export function useEscrowTransactions(escrowId: string) {
           [
             {
               to: escrowContractAddress,
-              data: encodeFunctionData({ abi: milestoneEscrowAbi, functionName, args: [BigInt(onchainEscrowId), BigInt(index)] }),
+              data: encodeFunctionData({
+                abi: milestoneEscrowAbi,
+                functionName,
+                args: [BigInt(onchainEscrowId), BigInt(index)],
+              }),
             },
           ],
           copy,

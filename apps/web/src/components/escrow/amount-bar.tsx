@@ -9,7 +9,8 @@ interface Segment {
 }
 
 const SEGMENT_CLASSES: Record<StatusTone, string> = {
-  neutral: "bg-[repeating-linear-gradient(135deg,var(--line-strong)_0_1px,transparent_1px_6px)] ring-1 ring-inset ring-border",
+  neutral:
+    "bg-[repeating-linear-gradient(135deg,var(--line-strong)_0_1px,transparent_1px_6px)] ring-1 ring-inset ring-border",
   vault: "bg-metal",
   seal: "bg-seal",
   caution: "bg-caution",
@@ -28,7 +29,15 @@ const LEGEND: { tone: StatusTone; label: string }[] = [
  * El total del acuerdo partido en tramos proporcionales a cada hito y coloreados por dónde está el dinero:
  * cuánto espera en garantía, cuánto ya se pagó y cuánto está en disputa.
  */
-export function AmountBar({ segments, className, showLegend = true }: { segments: Segment[]; className?: string; showLegend?: boolean }) {
+export function AmountBar({
+  segments,
+  className,
+  showLegend = true,
+}: {
+  segments: Segment[];
+  className?: string;
+  showLegend?: boolean;
+}) {
   const total = segments.reduce((sum, s) => sum + BigInt(s.amount), 0n);
   const byTone = new Map<StatusTone, bigint>();
   for (const s of segments) {
@@ -45,7 +54,10 @@ export function AmountBar({ segments, className, showLegend = true }: { segments
             <div
               key={index}
               title={`${segment.title}: ${formatUsdc(segment.amount)} USDC`}
-              className={cn("min-w-2 rounded-full transition-[background,box-shadow] duration-500", SEGMENT_CLASSES[milestoneTone(segment.status)])}
+              className={cn(
+                "min-w-2 rounded-full transition-[background,box-shadow] duration-500",
+                SEGMENT_CLASSES[milestoneTone(segment.status)],
+              )}
               style={{ flexGrow: share, flexBasis: 0 }}
             />
           );

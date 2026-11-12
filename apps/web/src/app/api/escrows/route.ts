@@ -54,10 +54,18 @@ export const POST = withErrorHandling(async (request: Request) => {
   // El límite vigente vive on-chain (configurable por la Safe owner): evita crear links imposibles de fondear.
   const total = data.milestones.reduce((sum, milestone) => sum + milestone.amount, 0n);
   const maxAmount = await getPublicClient()
-    .readContract({ address: env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS, abi: milestoneEscrowAbi, functionName: "maxEscrowAmount" })
+    .readContract({
+      address: env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS,
+      abi: milestoneEscrowAbi,
+      functionName: "maxEscrowAmount",
+    })
     .catch(() => null);
   if (maxAmount !== null && total > maxAmount) {
-    throw new ApiError(422, "amount_exceeds_max", `El total supera el máximo por acuerdo de ${formatUsdc(maxAmount)} USDC.`);
+    throw new ApiError(
+      422,
+      "amount_exceeds_max",
+      `El total supera el máximo por acuerdo de ${formatUsdc(maxAmount)} USDC.`,
+    );
   }
 
   const escrow = assertDb(

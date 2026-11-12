@@ -57,7 +57,10 @@ function EscrowList() {
       )}
 
       {(isPending || !me) && !error && (
-        <ul className="divide-y divide-border rounded-2xl border border-border bg-surface" aria-label="Cargando acuerdos">
+        <ul
+          className="divide-y divide-border rounded-2xl border border-border bg-surface"
+          aria-label="Cargando acuerdos"
+        >
           {Array.from({ length: 3 }, (_, i) => (
             <li key={i} className="flex items-center justify-between gap-6 px-6 py-5">
               <div className="space-y-2">

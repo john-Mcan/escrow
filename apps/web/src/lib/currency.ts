@@ -39,7 +39,10 @@ const REGION_CURRENCY: Record<string, LocalCurrencyCode> = {
 
 const TIMEZONE_CURRENCY: [RegExp, LocalCurrencyCode][] = [
   [/^America\/(Santiago|Punta_Arenas)$|^Chile\//, "CLP"],
-  [/^America\/(Mexico_City|Monterrey|Merida|Cancun|Chihuahua|Hermosillo|Mazatlan|Tijuana|Bahia_Banderas|Matamoros|Ojinaga)$/, "MXN"],
+  [
+    /^America\/(Mexico_City|Monterrey|Merida|Cancun|Chihuahua|Hermosillo|Mazatlan|Tijuana|Bahia_Banderas|Matamoros|Ojinaga)$/,
+    "MXN",
+  ],
   [/^America\/Bogota$/, "COP"],
   [/^America\/Lima$/, "PEN"],
   [/^America\/(Argentina\/|Buenos_Aires$)/, "ARS"],

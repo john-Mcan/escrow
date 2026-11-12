@@ -204,7 +204,9 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
           <p className="text-muted-foreground">
             Hito en disputa: <span className="text-foreground">{dispute.milestone.title}</span>
           </p>
-          <p className="t-meta">{dispute.openedAt ? `Abierta el ${formatDateTime(dispute.openedAt)}` : "Disputa abierta"}</p>
+          <p className="t-meta">
+            {dispute.openedAt ? `Abierta el ${formatDateTime(dispute.openedAt)}` : "Disputa abierta"}
+          </p>
         </div>
         <div className="space-y-1 text-right">
           <Usdc amount={amount} className="block text-2xl font-semibold tracking-[-0.02em]" unitClassName="text-sm" />
@@ -226,7 +228,11 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
                 <AddressLink chainId={dispute.chainId} address={dispute.payeeAddress} />
               </DetailRow>
               <DetailRow label="Árbitro del acuerdo">
-                {arbiter ? <AddressLink chainId={dispute.chainId} address={arbiter} /> : <Skeleton className="ml-auto h-4 w-24" />}
+                {arbiter ? (
+                  <AddressLink chainId={dispute.chainId} address={arbiter} />
+                ) : (
+                  <Skeleton className="ml-auto h-4 w-24" />
+                )}
               </DetailRow>
             </dl>
             <div className="flex flex-wrap gap-2">
@@ -245,7 +251,9 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
 
           <div className="space-y-4">
             <h3>Lo que cuenta cada parte ({dispute.evidence.length})</h3>
-            {dispute.evidence.length === 0 && <p className="text-sm text-muted-foreground">Ninguna de las partes envió su versión aún.</p>}
+            {dispute.evidence.length === 0 && (
+              <p className="text-sm text-muted-foreground">Ninguna de las partes envió su versión aún.</p>
+            )}
             <ul className="space-y-5">
               {dispute.evidence.map((item) => (
                 <li key={item.id} className="border-l-2 border-caution/50 pl-4 text-sm">
@@ -273,7 +281,10 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
           <div className="space-y-5">
             <div className="flex items-baseline justify-between gap-4">
               <h3>
-                <Label htmlFor={`split-${dispute.escrowId}-${dispute.milestone.index}`} className="text-[1.0625rem] font-semibold">
+                <Label
+                  htmlFor={`split-${dispute.escrowId}-${dispute.milestone.index}`}
+                  className="text-[1.0625rem] font-semibold"
+                >
                   Decide el reparto
                 </Label>
               </h3>
@@ -343,7 +354,9 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
                 <DownloadIcon /> Descargar lote para Transaction Builder
               </Button>
               <form onSubmit={submitHash} className="space-y-2 border-t border-border pt-5">
-                <Label htmlFor={`hash-${dispute.escrowId}-${dispute.milestone.index}`}>Registrar la transacción ejecutada</Label>
+                <Label htmlFor={`hash-${dispute.escrowId}-${dispute.milestone.index}`}>
+                  Registrar la transacción ejecutada
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id={`hash-${dispute.escrowId}-${dispute.milestone.index}`}

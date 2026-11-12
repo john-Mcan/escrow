@@ -39,8 +39,18 @@ export function CopyButton({
       }}
     >
       <span className="relative size-4" aria-hidden="true">
-        <CopyIcon className={cn("absolute inset-0 transition-all duration-200", copied ? "scale-50 opacity-0" : "scale-100 opacity-100")} />
-        <CheckIcon className={cn("absolute inset-0 transition-all duration-200", copied ? "scale-100 opacity-100" : "scale-50 opacity-0")} />
+        <CopyIcon
+          className={cn(
+            "absolute inset-0 transition-all duration-200",
+            copied ? "scale-50 opacity-0" : "scale-100 opacity-100",
+          )}
+        />
+        <CheckIcon
+          className={cn(
+            "absolute inset-0 transition-all duration-200",
+            copied ? "scale-100 opacity-100" : "scale-50 opacity-0",
+          )}
+        />
       </span>
       <span aria-live="polite">{copied ? copiedLabel : label}</span>
     </Button>

@@ -17,9 +17,30 @@ import { wagmiConfig } from "@/lib/wagmi";
  */
 const PRIVY_LOGO = (
   <svg viewBox="0 0 132 32" width="132" height="32" role="img" aria-label="extan">
-    <path d={MARK_LEFT_BRACKET} fill="none" stroke="#f4f5f4" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-    <path d={MARK_RIGHT_BRACKET} fill="none" stroke="#f4f5f4" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-    <rect x={MARK_CORE.x} y={MARK_CORE.y} width={MARK_CORE.size} height={MARK_CORE.size} rx={MARK_CORE.radius} fill="#7de7bb" />
+    <path
+      d={MARK_LEFT_BRACKET}
+      fill="none"
+      stroke="#f4f5f4"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d={MARK_RIGHT_BRACKET}
+      fill="none"
+      stroke="#f4f5f4"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <rect
+      x={MARK_CORE.x}
+      y={MARK_CORE.y}
+      width={MARK_CORE.size}
+      height={MARK_CORE.size}
+      rx={MARK_CORE.radius}
+      fill="#7de7bb"
+    />
     <text
       x="47"
       y="23.5"
@@ -33,7 +54,8 @@ const PRIVY_LOGO = (
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { staleTime: 10_000, retry: 1, refetchOnWindowFocus: false } } }),
+    () =>
+      new QueryClient({ defaultOptions: { queries: { staleTime: 10_000, retry: 1, refetchOnWindowFocus: false } } }),
   );
 
   return (

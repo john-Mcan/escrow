@@ -23,7 +23,10 @@ export function json<T>(data: T, init?: ResponseInit) {
   });
 }
 
-export async function parseJsonBody<Schema extends z.ZodType>(request: Request, schema: Schema): Promise<z.output<Schema>> {
+export async function parseJsonBody<Schema extends z.ZodType>(
+  request: Request,
+  schema: Schema,
+): Promise<z.output<Schema>> {
   let body: unknown;
   try {
     body = await request.json();
@@ -50,7 +53,10 @@ export function withErrorHandling<Args extends unknown[]>(handler: (...args: Arg
         );
       }
       console.error("[api] error no controlado", error);
-      return json({ error: { code: "internal_error", message: "Ocurrió un error inesperado. Intenta de nuevo." } }, { status: 500 });
+      return json(
+        { error: { code: "internal_error", message: "Ocurrió un error inesperado. Intenta de nuevo." } },
+        { status: 500 },
+      );
     }
   };
 }

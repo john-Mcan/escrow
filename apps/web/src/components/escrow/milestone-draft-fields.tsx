@@ -47,7 +47,15 @@ interface MilestoneDraftFieldsProps {
 }
 
 /** Un hito del formulario de creación: qué se entrega y cuánto, con el detalle y la fecha como opcionales. */
-export function MilestoneDraftFields({ milestone, index, single, errors, onChange, onRemove, onAmountError }: MilestoneDraftFieldsProps) {
+export function MilestoneDraftFields({
+  milestone,
+  index,
+  single,
+  errors,
+  onChange,
+  onRemove,
+  onAmountError,
+}: MilestoneDraftFieldsProps) {
   const fieldId = (name: string) => `m-${milestone.key}-${name}`;
   const error = (name: string) => errors[`milestones.${index}.${name}`];
   const amount = safeAmount(milestone.amount);

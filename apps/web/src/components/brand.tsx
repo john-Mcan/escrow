@@ -10,7 +10,15 @@ export const MARK_CORE = { x: 15.8, y: 11.8, size: 8.4, radius: 2.1 };
  * Isotipo: el dinero (cuadro esmeralda) entre corchetes, es decir, retenido en garantía.
  * `tone="light"` es la versión para fondos claros (emails y documentos).
  */
-export function BrandMark({ className, tone = "dark", title }: { className?: string; tone?: "dark" | "light"; title?: string }) {
+export function BrandMark({
+  className,
+  tone = "dark",
+  title,
+}: {
+  className?: string;
+  tone?: "dark" | "light";
+  title?: string;
+}) {
   const bracket = tone === "dark" ? "#f4f5f4" : "#08090b";
   const core = tone === "dark" ? "#7de7bb" : "#1fa774";
   return (
@@ -21,9 +29,30 @@ export function BrandMark({ className, tone = "dark", title }: { className?: str
       className={cn("h-6 w-[1.875rem]", className)}
     >
       {title && <title>{title}</title>}
-      <path d={MARK_LEFT_BRACKET} fill="none" stroke={bracket} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={MARK_RIGHT_BRACKET} fill="none" stroke={bracket} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-      <rect x={MARK_CORE.x} y={MARK_CORE.y} width={MARK_CORE.size} height={MARK_CORE.size} rx={MARK_CORE.radius} fill={core} />
+      <path
+        d={MARK_LEFT_BRACKET}
+        fill="none"
+        stroke={bracket}
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d={MARK_RIGHT_BRACKET}
+        fill="none"
+        stroke={bracket}
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect
+        x={MARK_CORE.x}
+        y={MARK_CORE.y}
+        width={MARK_CORE.size}
+        height={MARK_CORE.size}
+        rx={MARK_CORE.radius}
+        fill={core}
+      />
     </svg>
   );
 }

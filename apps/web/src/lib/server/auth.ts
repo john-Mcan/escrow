@@ -33,7 +33,11 @@ export async function syncUserFromPrivy(did: string, options: { displayName?: st
   const identity = toIdentity(await getPrivy().users()._get(did));
   const supabase = getSupabaseAdmin();
 
-  const { data: existing, error: readError } = await supabase.from("users").select("*").eq("privy_did", did).maybeSingle();
+  const { data: existing, error: readError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("privy_did", did)
+    .maybeSingle();
   if (readError) throw new ApiError(500, "database_error", "No pudimos cargar tu perfil.");
 
   const values = {

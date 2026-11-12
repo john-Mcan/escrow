@@ -35,7 +35,13 @@ export function OtpInput({
   useEffect(() => {
     if (!errorCount || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     boxesRef.current?.animate(
-      [{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(0)" }],
+      [
+        { transform: "translateX(0)" },
+        { transform: "translateX(-6px)" },
+        { transform: "translateX(5px)" },
+        { transform: "translateX(-3px)" },
+        { transform: "translateX(0)" },
+      ],
       { duration: 360, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
     );
   }, [errorCount]);
@@ -58,7 +64,11 @@ export function OtpInput({
         aria-describedby={describedBy}
         className="absolute inset-0 z-10 w-full cursor-text text-base text-transparent caret-transparent opacity-0 outline-none selection:bg-transparent disabled:cursor-not-allowed"
       />
-      <div aria-hidden="true" className="grid gap-2" style={{ gridTemplateColumns: `repeat(${length}, minmax(0, 1fr))` }}>
+      <div
+        aria-hidden="true"
+        className="grid gap-2"
+        style={{ gridTemplateColumns: `repeat(${length}, minmax(0, 1fr))` }}
+      >
         {Array.from({ length }, (_, index) => {
           const digit = value[index];
           const current = focused && !disabled && index === active && value.length < length + 1;
@@ -67,7 +77,13 @@ export function OtpInput({
               key={index}
               className={cn(
                 "relative grid h-14 place-items-center rounded-xl border bg-[#101214] text-2xl font-semibold amount transition-[border-color,box-shadow,opacity] duration-200",
-                invalid ? "border-destructive/70" : current ? "border-primary/70 ring-4 ring-primary/10" : digit ? "border-line-strong" : "border-input",
+                invalid
+                  ? "border-destructive/70"
+                  : current
+                    ? "border-primary/70 ring-4 ring-primary/10"
+                    : digit
+                      ? "border-line-strong"
+                      : "border-input",
                 disabled && "opacity-60",
               )}
             >

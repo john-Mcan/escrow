@@ -8,6 +8,7 @@ import {
   deriveEscrowStatus,
   emailSchema,
   explorerTxUrl,
+  formatBps,
   formatUsdc,
   milestoneEscrowAbi,
   parseUsdc,
@@ -71,23 +72,31 @@ describe("referenceId <-> UUID", () => {
 });
 
 describe("montos USDC", () => {
-  it("parsea punto o coma decimal", () => {
+  it("parsea el formato chileno: punto de miles y coma decimal", () => {
     expect(parseUsdc("1500")).toBe(1_500_000_000n);
-    expect(parseUsdc("1500.5")).toBe(1_500_500_000n);
+    expect(parseUsdc("1500,5")).toBe(1_500_500_000n);
+    expect(parseUsdc("1.500,5")).toBe(1_500_500_000n);
+    expect(parseUsdc("2.500")).toBe(2_500_000_000n);
+    expect(parseUsdc("1.000.000")).toBe(1_000_000_000_000n);
     expect(parseUsdc("0,000001")).toBe(1n);
   });
 
   it("rechaza formatos ambiguos o con más de 6 decimales", () => {
-    for (const input of ["1.500,50", "1,500.50", "-1", "1.1234567", "abc", ""]) {
+    for (const input of ["1500.50", "2.5", "1,500.50", "1.50.000", "1.5000", "-1", "1,1234567", "abc", ""]) {
       expect(() => parseUsdc(input)).toThrow();
     }
   });
 
   it("formatea sin perder precisión", () => {
-    expect(formatUsdc(1_500_500_000n)).toBe("1,500.50");
-    expect(formatUsdc("1")).toBe("0.000001");
-    expect(formatUsdc(0n)).toBe("0.00");
-    expect(formatUsdc(123_456_789_012_345_678_901n)).toBe("123,456,789,012,345.678901");
+    expect(formatUsdc(1_500_500_000n)).toBe("1.500,50");
+    expect(formatUsdc(9_920_000_000n)).toBe("9.920,00");
+    expect(formatUsdc("1")).toBe("0,000001");
+    expect(formatUsdc(0n)).toBe("0,00");
+    expect(formatUsdc(123_456_789_012_345_678_901n)).toBe("123.456.789.012.345,678901");
+  });
+
+  it("formatea la comisión con coma decimal", () => {
+    expect(formatBps(150)).toBe("1,5%");
   });
 });
 
@@ -110,7 +119,7 @@ describe("esquemas", () => {
   it("createEscrowSchema limita el total a 5.000 USDC", () => {
     const result = createEscrowSchema.safeParse({
       title: "Grande",
-      milestones: [{ title: "A", amount: "4000" }, { title: "B", amount: "1000.000001" }],
+      milestones: [{ title: "A", amount: "4000" }, { title: "B", amount: "1.000,000001" }],
     });
     expect(result.success).toBe(false);
   });

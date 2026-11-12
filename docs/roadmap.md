@@ -253,8 +253,7 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
 - [ ] **Texto vs. producto:** la portada promete que el cliente paga "con transferencia o tarjeta, en su moneda". Hoy
       solo se paga con USDC. Es intencional: el on-ramp (Fase 7) tiene que estar resuelto antes de salir a producción.
 
-**QA visual cerrado el 2026-11-12.** Quedan abiertos el formato de números y las pruebas del ingreso nuevo que se
-listan abajo.
+**QA visual cerrado el 2026-11-12.** Quedan abiertas las pruebas del ingreso nuevo que se listan abajo.
 
 #### Segunda revisión (2026-11-12)
 
@@ -283,8 +282,9 @@ listan abajo.
       para siempre (le pasó a `john.mc+test@upg.cl` el 2026-11-11) y no podía crear links. Ahora `useMe` reintenta
       mientras el navegador ve una wallet que el perfil no tiene, y el servidor vuelve a leer de Privy cualquier
       perfil sin wallet.
-- [ ] **Formato de números:** USDC usa `2,500.00` (es-419) y CLP `$2.480.484`. En la portada ahora conviven en el
-      mismo bloque; decidir un solo criterio.
+- [x] **Formato de números:** USDC y CLP con el formato chileno, punto de miles y coma decimal (`2.500,00 USDC`,
+      `$2.480.484 CLP`; CLP sin centavos). Al escribir montos, el punto es separador de miles: "2.500" ya no se lee
+      como 2,5 y lo ambiguo se rechaza con una indicación.
 
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 

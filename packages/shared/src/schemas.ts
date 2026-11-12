@@ -1,7 +1,7 @@
 import type { Address, Hex } from "viem";
 import { z } from "zod";
 import { DEFAULT_MAX_ESCROW_AMOUNT, MAX_MILESTONES } from "./constants";
-import { formatUsdc, parseUsdc, USDC_INPUT_PATTERN } from "./money";
+import { formatUsdc, parseUsdc, USDC_INPUT_HINT, USDC_INPUT_PATTERN } from "./money";
 
 // -----------------------------------------------------------------------------
 // Primitivas
@@ -30,11 +30,11 @@ export const httpsUrlSchema = z
   .max(2048)
   .pipe(z.url({ protocol: /^https$/, error: "Usa un enlace https://" }));
 
-/** Monto en USDC escrito por una persona ("1500.50" o "1500,50") -> bigint en unidades base. */
+/** Monto en USDC escrito por una persona ("2.500,50" o "2500,50") -> bigint en unidades base. */
 export const usdcAmountSchema = z
   .string()
   .trim()
-  .regex(USDC_INPUT_PATTERN, "Escribe el monto sin separador de miles, p. ej. 1500.50")
+  .regex(USDC_INPUT_PATTERN, USDC_INPUT_HINT)
   .transform((value) => parseUsdc(value))
   .refine((value) => value > 0n, "El monto debe ser mayor a 0");
 

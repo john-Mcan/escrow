@@ -127,7 +127,15 @@ explicación de USDC van plegados en "Detalles técnicos" o "¿Qué es USDC?" (c
 
 ## Moneda
 
-Los montos se muestran en USDC y, al lado, la referencia en la moneda local: "≈ $2.460.201 CLP".
+Los montos se muestran en USDC y, al lado, la referencia en la moneda local: "2.500,00 USDC ≈ $2.460.201 CLP".
+
+- **Formato chileno:** punto para los miles y coma para los decimales, en USDC (`2.500,00`), en CLP (`$2.460.201`,
+  sin centavos porque casi no se usan) y en la comisión (`1,5%`). Lo aplican `formatUsdc` y `formatBps` en
+  `packages/shared`, así que vale igual en la app, la API y los emails.
+- **Al escribir un monto:** el punto solo se acepta como separador de miles (en grupos de 3) y la coma como decimal.
+  "2.500" es dos mil quinientos, nunca 2,5; lo ambiguo ("2.5", "1500.50") se rechaza con una indicación. Al salir del
+  campo, el monto se reescribe con formato ("2500" → "2.500,00").
+- **Otras monedas de referencia** (MXN, USD, BRL…) usan el formato de su país.
 
 - **Moneda local:** se detecta por el idioma o la zona horaria del navegador y se puede cambiar con el selector junto
   al monto principal. La elección se recuerda.

@@ -9,6 +9,7 @@ import {
   MAX_MILESTONES,
   milestoneEscrowAbi,
   parseUsdc,
+  USDC_INPUT_HINT,
   USDC_INPUT_PATTERN,
 } from "@escrow/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -88,6 +89,17 @@ export function CreateEscrowForm() {
   const overMax = total > DEFAULT_MAX_ESCROW_AMOUNT;
   const preview = feeBps !== undefined ? computeSplit(total, feeBps) : null;
   const single = milestones.length === 1;
+
+  const setFieldError = (field: string, message: string | null) =>
+    setErrors((current) => {
+      if (message === null) {
+        if (!(field in current)) return current;
+        const rest = { ...current };
+        delete rest[field];
+        return rest;
+      }
+      return { ...current, [field]: message };
+    });
 
   const update = (key: number, patch: Partial<MilestoneDraft>) =>
     setMilestones((current) => current.map((m) => (m.key === key ? { ...m, ...patch } : m)));
@@ -293,9 +305,20 @@ export function CreateEscrowForm() {
                       id={`m-${milestone.key}-amount`}
                       value={milestone.amount}
                       inputMode="decimal"
-                      placeholder="0.00"
+                      placeholder="0,00"
                       className="amount text-right text-base font-medium"
-                      onChange={(e) => update(milestone.key, { amount: e.target.value })}
+                      onChange={(e) => {
+                        update(milestone.key, { amount: e.target.value });
+                        if (USDC_INPUT_PATTERN.test(e.target.value.trim())) setFieldError(`milestones.${index}.amount`, null);
+                      }}
+                      onBlur={(e) => {
+                        // Al salir del campo, el monto queda escrito como se mostrará ("2500" -> "2.500,00"); lo
+                        // ambiguo ("2.5") se marca ahí mismo, antes de crear el link.
+                        const raw = e.currentTarget.value.trim();
+                        if (!raw) return;
+                        if (USDC_INPUT_PATTERN.test(raw)) update(milestone.key, { amount: formatUsdc(parseUsdc(raw)) });
+                        else setFieldError(`milestones.${index}.amount`, USDC_INPUT_HINT);
+                      }}
                       aria-invalid={!!errors[`milestones.${index}.amount`]}
                     />
                   </Field>

@@ -4,7 +4,7 @@
 the provider gets paid on delivery. The deposit, in USDC on Base, sits in a public smart contract and never with the
 platform; each milestone is released when its delivery is approved.
 
-[Español](README.es.md) · [Verified contract](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Static analysis report](docs/analisis-estatico.md) · Live demo: coming soon
+**[Live demo](https://extan.johnmcan.dev)** · [Español](README.es.md) · [Verified contract](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Static analysis report](docs/analisis-estatico.md)
 
 <p align="center">
   <img src="docs/images/landing-desktop.jpg" alt="extan landing page" width="100%">
@@ -29,9 +29,20 @@ gas is sponsored.
 
 - **Testnet.** The contract is deployed and verified on Base Sepolia. The full flow (deposit, delivery, release,
   refund, dispute and arbiter resolution) has been tested end to end with real wallets.
-- **Public demo:** being deployed; the step-by-step plan is in [docs/demo-portafolio.md](docs/demo-portafolio.md).
+- **Public demo:** live at [extan.johnmcan.dev](https://extan.johnmcan.dev), on Base Sepolia with test USDC.
 - **Not production yet.** Mainnet requires an external audit, a legal entity and a fiat on-ramp
   ([roadmap](docs/roadmap.md)).
+
+## Try the demo
+
+The demo runs on Base Sepolia, so every amount is test USDC with no real value. The app is in Spanish.
+
+1. Sign in at [extan.johnmcan.dev](https://extan.johnmcan.dev) with your email or Google. A wallet is created for you.
+2. Create a payment link with a couple of milestones and send it to a second email address of yours, the client.
+3. Sign in as the client, copy the wallet address from *Recibir USDC* (Receive USDC) in the account menu and request
+   Base Sepolia USDC at [faucet.circle.com](https://faucet.circle.com) (20 USDC every 2 hours).
+4. Deposit from the link. You don't need ETH: the gas is sponsored.
+5. Take a milestone from delivery to release, or try a refund or a dispute.
 
 ## Features
 

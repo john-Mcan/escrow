@@ -4,7 +4,7 @@
 empezar y el proveedor cobra al entregar. El depósito, en USDC sobre Base, queda en un smart contract público y nunca
 en manos de la plataforma; cada hito se libera cuando se aprueba su entrega.
 
-[English](README.md) · [Contrato verificado](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Informe de análisis estático](docs/analisis-estatico.md) · Demo pública: pronto
+**[Demo pública](https://extan.johnmcan.dev)** · [English](README.md) · [Contrato verificado](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Informe de análisis estático](docs/analisis-estatico.md)
 
 <p align="center">
   <img src="docs/images/landing-desktop.jpg" alt="Portada de extan" width="100%">
@@ -29,9 +29,20 @@ gas va patrocinado.
 
 - **Testnet.** El contrato está desplegado y verificado en Base Sepolia. El flujo completo (depósito, entrega,
   liberación, reembolso, disputa y resolución del árbitro) está probado de punta a punta con wallets reales.
-- **Demo pública:** en preparación; el plan paso a paso está en [docs/demo-portafolio.md](docs/demo-portafolio.md).
+- **Demo pública:** en [extan.johnmcan.dev](https://extan.johnmcan.dev), sobre Base Sepolia y con USDC de prueba.
 - **Aún no es producción.** Mainnet exige una auditoría externa, una entidad legal y un on-ramp desde moneda local
   ([roadmap](docs/roadmap.md)).
+
+## Cómo probar la demo
+
+La demo funciona en Base Sepolia: todos los montos son USDC de prueba, sin valor real.
+
+1. Entra a [extan.johnmcan.dev](https://extan.johnmcan.dev) con tu email o con Google. Se crea una wallet a tu nombre.
+2. Crea un link de cobro con un par de hitos y envíalo a otro email tuyo, que hará de cliente.
+3. Entra como cliente, copia la dirección de tu wallet en *Recibir USDC*, en el menú de la cuenta, y pide USDC de Base
+   Sepolia en [faucet.circle.com](https://faucet.circle.com) (20 USDC cada 2 horas).
+4. Deposita desde el link. No necesitas ETH: el gas va patrocinado.
+5. Lleva un hito de la entrega a la liberación, o prueba un reembolso o una disputa.
 
 ## Funcionalidades
 

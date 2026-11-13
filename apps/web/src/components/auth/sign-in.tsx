@@ -1,6 +1,6 @@
 "use client";
 
-import { Captcha, useLoginWithEmail, useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
+import { Captcha, useCreateWallet, useLoginWithEmail, useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
 import { ArrowLeftIcon } from "lucide-react";
 import {
   createContext,
@@ -49,6 +49,7 @@ export function SignInProvider({ children }: { children: ReactNode }) {
   const { authenticated } = usePrivy();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<SignInOptions>({});
+  useEnsureEmbeddedWallet();
 
   // Google devuelve al usuario a la misma página: el hook tiene que estar montado siempre para terminar el ingreso.
   const oauth = useLoginWithOAuth({
@@ -77,6 +78,32 @@ export function SignInProvider({ children }: { children: ReactNode }) {
       />
     </SignInContext.Provider>
   );
+}
+
+/**
+ * Con interfaz de ingreso propia, Privy no aplica `createOnLogin`: la wallet embebida se crea aquí apenas hay sesión,
+ * para cuentas sin ninguna wallet (quien entra con MetaMask ya tiene la suya). Sobre ella, `SmartWalletsProvider` crea
+ * la smart wallet y `useMe` la sincroniza al perfil. Un intento por usuario y carga de página.
+ */
+function useEnsureEmbeddedWallet() {
+  const { ready, authenticated, user } = usePrivy();
+  const { createWallet } = useCreateWallet();
+  const attempted = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!ready || !authenticated || !user || user.wallet || attempted.current === user.id) return;
+    attempted.current = user.id;
+    createWallet().catch((error: unknown) => {
+      // Si Privy ya la había creado por su cuenta (configuración del dashboard), no falta nada. El SDK lanza ese caso
+      // como un Error simple, sin código.
+      const exists =
+        privyCode(error) === "embedded_wallet_already_exists" ||
+        (error instanceof Error && error.message.includes("already has an embedded wallet"));
+      if (exists) return;
+      console.error("No se pudo crear la wallet embebida", error);
+      toast.error("No pudimos preparar tu wallet. Recarga la página para intentarlo de nuevo.");
+    });
+  }, [ready, authenticated, user, createWallet]);
 }
 
 type Step = "email" | "code" | "done";
@@ -236,7 +263,7 @@ function SignInDialog({
     <Dialog open={open} onOpenChange={(next) => pending !== "verify" && onOpenChange(next)}>
       <DialogContent
         overlayClassName="bg-[#020303]/90 supports-backdrop-filter:backdrop-blur-md"
-        className="top-3 max-w-[calc(100%-1.5rem)] translate-y-0 gap-0 overflow-hidden p-0 sm:top-1/2 sm:max-w-[25.5rem] sm:-translate-y-1/2 sm:p-0"
+        className="max-w-[calc(100%-1.5rem)] gap-0 overflow-hidden p-0 sm:max-w-[25.5rem] sm:p-0"
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           (step === "code" ? codeRef : emailRef).current?.focus();

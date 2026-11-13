@@ -67,6 +67,9 @@ export function UserMenu() {
                 <Usdc amount={balance.data} className="mt-0.5 block text-lg font-semibold" unitClassName="text-sm" />
                 <LocalAmount amount={balance.data} className="text-xs" />
               </>
+            ) : me && !me.walletAddress ? (
+              // Cuenta recién creada: la wallet aparece en unos segundos (ver `useEnsureEmbeddedWallet`).
+              <p className="mt-1 text-sm text-subtle">Preparando tu wallet…</p>
             ) : (
               <Skeleton className="mt-1.5 h-6 w-28" />
             )}

@@ -122,7 +122,14 @@ const PRESETS = {
 };
 /** Aire entre el final del texto y el horizonte, en px. */
 const HORIZON_GAP = 28;
-const MAX_DPR = 1.5;
+/**
+ * Resolución del canvas. En teléfonos se dibuja a la densidad nativa (hasta 3×): a 1,5× el navegador lo estiraba al
+ * doble y las olas se veían borrosas. En escritorio el canvas es mucho más grande y 1,5× ya se ve nítido. El tope de
+ * píxeles protege a las tablets, y si el equipo no sostiene la animación se baja la resolución (ver `adapt`).
+ */
+const MAX_DPR_HANDHELD = 3;
+const MAX_DPR_DESKTOP = 1.5;
+const PIXEL_BUDGET = 4_500_000;
 
 function hexToRgb(hex: string): [number, number, number] {
   const value = Number.parseInt(hex.replace("#", ""), 16);
@@ -304,6 +311,10 @@ export function SeaBackground({
     let frame = 0;
     let visible = false;
     let shown = false;
+    let dpr = 1;
+    let dprCap = Infinity;
+    let sampledFrames = 0;
+    let sampledTime = 0;
 
     function draw() {
       gl!.clear(gl!.COLOR_BUFFER_BIT);
@@ -319,7 +330,13 @@ export function SeaBackground({
     function resize() {
       const rect = canvas.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const maxDpr = rect.width < 1024 ? MAX_DPR_HANDHELD : MAX_DPR_DESKTOP;
+      dpr = Math.min(
+        window.devicePixelRatio || 1,
+        maxDpr,
+        dprCap,
+        Math.sqrt(PIXEL_BUDGET / (rect.width * rect.height)),
+      );
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
       gl!.viewport(0, 0, canvas.width, canvas.height);
@@ -351,11 +368,32 @@ export function SeaBackground({
       draw();
     }
 
+    /**
+     * Si el equipo no sostiene unos 40 cuadros por segundo, baja la resolución un paso, hasta 1,5×. Mide 60 cuadros
+     * después de 20 de calentamiento.
+     */
+    function adapt(delta: number) {
+      if (dpr <= MAX_DPR_DESKTOP) return;
+      sampledFrames++;
+      if (sampledFrames <= 20) return;
+      sampledTime += delta;
+      if (sampledFrames < 80) return;
+      const average = sampledTime / 60;
+      sampledFrames = 0;
+      sampledTime = 0;
+      if (average > 25) {
+        dprCap = Math.max(MAX_DPR_DESKTOP, dpr - 0.75);
+        resize();
+      }
+    }
+
     function tick(now: number) {
       // Tope al salto entre cuadros: al volver de otra pestaña el mar sigue donde estaba.
-      time += (Math.min(now - (last || now), 50) / 1000) * speed;
+      const delta = Math.min(now - (last || now), 50);
+      time += (delta / 1000) * speed;
       last = now;
       draw();
+      adapt(delta);
       frame = requestAnimationFrame(tick);
     }
 

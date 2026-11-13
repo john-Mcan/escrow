@@ -54,6 +54,7 @@
   --animate-reveal: reveal 300ms var(--ease-out-soft) both;
   /* Toma su período de un --duration en línea: un solo keyframe para todas las velocidades. */
   --animate-shine: shine var(--duration) infinite linear;
+  --animate-spot-sweep: spot-sweep 1.8s ease-in-out;
 }
 
 :root {
@@ -298,6 +299,27 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+/* Registrada para poder animarla: en táctil la luz de `SpotlightCard` recorre el borde superior de lado a lado. */
+@property --spot-x {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+@keyframes spot-sweep {
+  from {
+    --spot-x: -10%;
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  to {
+    --spot-x: 110%;
+    opacity: 0;
   }
 }
 

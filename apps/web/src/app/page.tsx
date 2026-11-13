@@ -93,30 +93,27 @@ export default function HomePage() {
             {/* En vertical, el horizonte del mar se ubica justo debajo de este bloque. */}
             <div data-sea-horizon>
               <h1 className="text-[clamp(2.5rem,1.3rem+3.4vw,3.875rem)] leading-[1.02] tracking-[-0.045em]">
-                Tu cliente deposita al empezar. <span className="text-muted-foreground">Tú cobras al entregar.</span>
+                Pagos por hitos garantizados <span className="text-muted-foreground">en blockchain.</span>
               </h1>
-              <p className="mt-5 t-lead sm:hidden">
-                Creas un link de cobro y tu cliente paga en su moneda. El dinero queda en garantía hasta cada entrega.
-              </p>
-              <p className="mt-7 hidden t-lead sm:block sm:text-xl sm:leading-relaxed">
-                Para freelancers, agencias y trabajos por encargo. Creas un link de cobro, tu cliente paga en su moneda
-                y liberan los fondos según su acuerdo. Nadie, ni siquiera nosotros, puede quedarse con él.
+              <p className="mt-5 t-lead sm:mt-7 sm:text-xl sm:leading-relaxed">
+                Un link de cobro para freelancers y agencias: tu cliente paga al empezar y tú cobras al entregar.
               </p>
             </div>
             <div className="mt-auto flex flex-col gap-3 pt-10 sm:flex-row sm:flex-wrap sm:items-center lg:mt-10 lg:pt-0">
               <Button asChild size="xl" className="w-full sm:w-auto">
                 <Link href="/dashboard/new">Crear link de cobro</Link>
               </Button>
-              {/* Sobre el mar lleva borde y fondo translúcido; en escritorio vuelve a ser un botón fantasma. */}
+              {/* Sobre el mar lleva borde marcado y fondo translúcido; en escritorio vuelve a ser un botón fantasma. */}
               <Button
                 asChild
                 size="xl"
                 variant="ghost"
-                className="group/how w-full border-border bg-background/50 text-foreground backdrop-blur-md sm:w-auto lg:border-transparent lg:bg-transparent lg:text-muted-foreground lg:backdrop-blur-none"
+                className="group/how w-full border-line-strong bg-background/50 text-foreground backdrop-blur-md sm:w-auto lg:border-transparent lg:bg-transparent lg:text-muted-foreground lg:backdrop-blur-none"
               >
                 <a href="#como-funciona">
                   Cómo funciona
-                  <ArrowDownIcon className="transition-transform duration-200 group-hover/how:translate-y-0.5" />
+                  {/* Centrado óptico: la punta de la flecha carga su peso abajo y la hacía ver más baja que el texto. */}
+                  <ArrowDownIcon className="-translate-y-[0.5px] transition-transform duration-200 group-hover/how:translate-y-0.5" />
                 </a>
               </Button>
             </div>

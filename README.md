@@ -1,8 +1,8 @@
 # extan
 
-**Milestone-based escrow payments in USDC on Base.** A freelancer or agency creates a payment link split into
-milestones; the client deposits the total once, and each milestone is paid out when its delivery is approved. The money
-sits in a public smart contract, never with the platform.
+**Milestone payments, guaranteed on-chain.** A payment link for freelancers and agencies: the client pays up front and
+the provider gets paid on delivery. The deposit, in USDC on Base, sits in a public smart contract and never with the
+platform; each milestone is released when its delivery is approved.
 
 [Español](README.es.md) · [Verified contract](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Static analysis report](docs/analisis-estatico.md) · Live demo: coming soon
 

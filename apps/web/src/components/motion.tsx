@@ -21,8 +21,18 @@ const RING_MASK: CSSProperties = {
 };
 
 /**
- * Superficie cuyo borde y brillo siguen al puntero. La posición se escribe como variable CSS (sin re-render) y el
- * efecto solo aparece al pasar el mouse, así que en táctil la tarjeta queda quieta.
+ * Recorrido táctil: un foco más chico que el del mouse, para que se lea como una luz que avanza, y más intenso,
+ * porque no hay un cursor encima que lo acerque a la vista.
+ */
+const SWEEP = cn(
+  "group-data-[sweep]/spot:animate-spot-sweep group-data-[sweep]/spot:[--spot-size:220px]",
+  "group-data-[sweep]/spot:[--spot-edge:rgb(125_231_187/0.95)] group-data-[sweep]/spot:[--spot-glow:rgb(125_231_187/0.08)]",
+);
+
+/**
+ * Superficie cuyo borde y brillo siguen al puntero. La posición se escribe como variable CSS (sin re-render). En
+ * táctil no hay puntero que seguir: la luz recorre el borde superior de izquierda a derecha cada vez que la tarjeta
+ * pasa por el centro de la pantalla.
  */
 export function SpotlightCard({
   children,
@@ -39,6 +49,27 @@ export function SpotlightCard({
   as?: ElementType;
 } & Omit<ComponentPropsWithoutRef<"div">, "children" | "className" | "style" | "onPointerMove">) {
   const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const host = ref.current;
+    if (!host || !window.matchMedia("(hover: none) and (prefers-reduced-motion: no-preference)").matches) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) host.dataset.sweep = "";
+      },
+      // Franja central del 20 % del alto: la tarjeta se ilumina cuando el dedo la trae al centro, no al asomarse.
+      { rootMargin: "-40% 0px -40% 0px" },
+    );
+    const finish = (event: AnimationEvent) => {
+      if (event.animationName === "spot-sweep") delete host.dataset.sweep;
+    };
+    observer.observe(host);
+    host.addEventListener("animationend", finish);
+    return () => {
+      observer.disconnect();
+      host.removeEventListener("animationend", finish);
+    };
+  }, []);
 
   function track(event: PointerEvent<HTMLElement>) {
     const host = ref.current;
@@ -58,7 +89,11 @@ export function SpotlightCard({
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-px rounded-[inherit] p-px opacity-0 transition-opacity duration-300 group-hover/spot:opacity-100 motion-reduce:hidden"
+        className={cn(
+          "pointer-events-none absolute -inset-px rounded-[inherit] p-px opacity-0 transition-opacity duration-300 group-hover/spot:opacity-100 motion-reduce:hidden",
+          SWEEP,
+          "group-data-[sweep]/spot:p-[1.5px]",
+        )}
         style={{
           background:
             "radial-gradient(var(--spot-size) circle at var(--spot-x, 50%) var(--spot-y, 0%), var(--spot-edge), transparent 70%)",
@@ -67,7 +102,10 @@ export function SpotlightCard({
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover/spot:opacity-100 motion-reduce:hidden"
+        className={cn(
+          "pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover/spot:opacity-100 motion-reduce:hidden",
+          SWEEP,
+        )}
         style={{
           background:
             "radial-gradient(var(--spot-size) circle at var(--spot-x, 50%) var(--spot-y, 0%), var(--spot-glow), transparent 70%)",

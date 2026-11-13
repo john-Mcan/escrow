@@ -286,6 +286,23 @@ Notas del primer recorrido real (cliente y proveedor con wallet embebida de Priv
       `$2.480.484 CLP`; CLP sin centavos). Al escribir montos, el punto es separador de miles: "2.500" ya no se lee
       como 2,5 y lo ambiguo se rechaza con una indicación.
 
+#### Portada en teléfonos reales (2026-11-13)
+
+Revisión hecha con la primera versión publicada en Vercel, en un Android y en un iPhone Pro Max.
+
+- [x] **H1 y bajada:** "Pagos por hitos garantizados en blockchain." y una sola bajada para móvil y escritorio: "Un
+      link de cobro para freelancers y agencias: tu cliente paga al empezar y tú cobras al entregar." El hero ya no
+      promete "paga en su moneda" mientras no haya on-ramp; esa promesa sigue más abajo. README e imágenes al día.
+- [x] **Proporciones en teléfonos grandes:** en un iPhone Pro Max todo se veía más chico. Se probó escalar la
+      interfaz completa con el ancho (16 a 18 px de base) y se descartó: se veía apretada y tosca. Queda el tamaño
+      fijo, que deja más aire en pantallas grandes.
+- [x] **"Cómo funciona":** sobre el mar, el botón lleva un borde más visible.
+- [x] **`SpotlightCard` en táctil:** sin mouse, la luz recorre el borde superior de izquierda a derecha cuando la
+      tarjeta pasa por el centro de la pantalla.
+- [x] **Mar del hero borroso en teléfonos:** el canvas se dibujaba como máximo a 1,5× y el navegador lo estiraba en
+      pantallas 3×. Ahora usa la densidad nativa (hasta 3×) y baja la resolución si el equipo no sostiene unos 40
+      cuadros por segundo. En escritorio sigue en 1,5×.
+
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 
 ## Fase 5: Bases técnicas y staging

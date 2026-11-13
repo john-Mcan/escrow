@@ -1,8 +1,8 @@
 # extan
 
-**Pagos en garantía por hitos, en USDC sobre Base.** Un freelancer o una agencia crea un link de cobro dividido en
-hitos; el cliente deposita el total una vez y cada hito se paga cuando se aprueba su entrega. El dinero queda en un
-smart contract público, nunca en manos de la plataforma.
+**Pagos por hitos garantizados en blockchain.** Un link de cobro para freelancers y agencias: el cliente paga al
+empezar y el proveedor cobra al entregar. El depósito, en USDC sobre Base, queda en un smart contract público y nunca
+en manos de la plataforma; cada hito se libera cuando se aprueba su entrega.
 
 [English](README.md) · [Contrato verificado](https://base-sepolia.blockscout.com/address/0xb7BABf0046fb8Bb2E3Ea0e6B75abdDEb31B9F863?tab=contract) · [Informe de análisis estático](docs/analisis-estatico.md) · Demo pública: pronto
 

@@ -68,6 +68,14 @@ QuickNode o el nodo de Coinbase Developer Platform sirven igual.
 1. Crea una cuenta en [etherscan.io](https://etherscan.io) y una API key (la API v2 usa la misma key para Basescan).
 2. `ETHERSCAN_API_KEY=<key>`
 
+> **Plan gratuito y Base (revisado el 2026-11-12):** desde noviembre de 2025, el plan Free de Etherscan no cubre Base
+> ni Base Sepolia para consultas generales ("Paid tier only" en
+> [supported-chains](https://docs.etherscan.io/supported-chains)). La **verificación de contratos sigue siendo
+> gratis en todas las redes** ([anuncio](https://info.etherscan.com/whats-changing-in-the-free-api-tier-coverage-and-why)),
+> así que la key gratuita alcanza para `--verify`. La app no usa la API de Etherscan. Si la verificación respondiera
+> "Free API access is not supported for this chain", hay dos caminos sin pagar: Blockscout y Sourcify (sin key), o el
+> formulario *Verify & Publish* de Basescan con el JSON de `forge verify-contract --show-standard-json-input`.
+
 ## 4. Wallet de deploy y fondos de prueba
 
 1. Crea una wallet nueva solo para desplegar y guárdala cifrada (pide una contraseña; no queda en `.env`):

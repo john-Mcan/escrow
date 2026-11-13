@@ -65,6 +65,9 @@ lo que más suma en un portafolio web3.
   2. **Claude:** el mismo `forge verify-contract`, con `--chain base-sepolia` y la key.
   3. **Resultado:** la pestaña *Contract* de Basescan muestra el código con el check de verificado. El link va al
      README.
+  4. **Si falla por el plan gratuito:** el plan Free de Etherscan ya no cubre Base para consultas generales, pero la
+     verificación sigue siendo gratis (detalle en [credenciales.md](credenciales.md), sección 3). Plan B sin key: el
+     formulario *Verify & Publish* de Basescan con el JSON que genera `forge verify-contract --show-standard-json-input`.
 
 ## 3. Análisis estático con Slither (Claude) ✓
 

@@ -9,7 +9,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.NEXT_PUBLIC_APP_URL),
-  title: { default: "extan | Cobros en garantía por hitos", template: "%s | extan" },
+  title: { default: "extan | Pagos por hitos garantizados en blockchain", template: "%s | extan" },
   description:
     "Crea un link de cobro por hitos. Tu cliente deposita en garantía y recibes cada pago al entregar. El dinero nunca pasa por nuestras manos.",
   applicationName: "extan",

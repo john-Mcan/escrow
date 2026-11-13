@@ -302,6 +302,13 @@ Revisión hecha con la primera versión publicada en Vercel, en un Android y en 
 - [x] **Mar del hero borroso en teléfonos:** el canvas se dibujaba como máximo a 1,5× y el navegador lo estiraba en
       pantallas 3×. Ahora usa la densidad nativa (hasta 3×) y baja la resolución si el equipo no sostiene unos 40
       cuadros por segundo. En escritorio sigue en 1,5×.
+- [x] **Ingreso centrado en móvil:** los pasos de email y código quedan al centro de la pantalla (antes, anclados arriba).
+- [x] **Campos a 16 px en todo el sitio:** con menos, iOS hace zoom al enfocarlos. Cambió la base compartida de
+      `Input`/`Textarea` (15 px), el hash de arbitraje (13 px) y el selector de fecha oculto.
+- [x] **Bug: cuentas nuevas sin wallet en la demo publicada.** El saldo del menú quedaba cargando sin fin. Con un ingreso
+      propio, Privy no aplica `createOnLogin`, y en su dashboard la creación automática está en "off" (las cuentas de
+      prueba anteriores sí recibieron wallet). Ahora la app crea la wallet embebida apenas detecta una sesión sin
+      wallet, y Privy crea encima la smart wallet. Mientras tanto, el menú dice "Preparando tu wallet…".
 
 **Cierre:** guía de marca aprobada, dominio comprado y todas las superficies existentes revisadas.
 

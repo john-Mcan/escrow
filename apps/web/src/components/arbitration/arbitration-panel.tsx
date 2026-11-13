@@ -362,7 +362,7 @@ function DisputeCard({ dispute }: { dispute: DisputeItem }) {
                     id={`hash-${dispute.escrowId}-${dispute.milestone.index}`}
                     name="txHash"
                     placeholder="0x…"
-                    className="font-mono text-[0.8125rem]"
+                    className="font-mono"
                   />
                   <Button type="submit" variant="outline" disabled={syncing}>
                     {syncing && <Spinner />}

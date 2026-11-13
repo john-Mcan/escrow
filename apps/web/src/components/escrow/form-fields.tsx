@@ -149,7 +149,7 @@ export function DueDatePicker({
         onChange={(event) => onChange(event.target.value)}
         tabIndex={-1}
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-3 size-px opacity-0 [color-scheme:dark]"
+        className="pointer-events-none absolute bottom-0 left-3 size-px text-base opacity-0 [color-scheme:dark]"
       />
     </div>
   );

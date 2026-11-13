@@ -87,7 +87,8 @@ function todayIso(): string {
 
 /**
  * Fecha de entrega como acción secundaria: un botón que muestra la fecha ya escrita ("17 nov 2026") y abre el
- * calendario del sistema. El `<input type="date">` queda oculto bajo el botón para que el calendario se ancle ahí.
+ * calendario del sistema. El `<input type="date">` queda oculto bajo el botón para que el calendario se ancle ahí;
+ * en pantallas táctiles lo cubre entero y recibe el toque, porque iOS solo abre su selector al tocar el campo.
  */
 export function DueDatePicker({
   id,
@@ -107,27 +108,44 @@ export function DueDatePicker({
       input.showPicker();
     } catch {
       input.focus();
+      return;
     }
+    // En iOS `showPicker()` existe pero no abre nada (WebKit 261703); su selector sale al enfocar el campo. Llega
+    // aquí con VoiceOver, que activa el botón en vez de tocar el campo que lo cubre.
+    if (window.matchMedia("(pointer: coarse)").matches) input.focus();
   }
 
   return (
-    <div className="relative inline-flex items-center">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={openPicker}
-        className={value ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
-      >
-        <CalendarIcon />
-        {value ? (
-          <span>
-            Entrega estimada: <span className="font-medium">{formatDate(value)}</span>
-          </span>
-        ) : (
-          "Fecha de entrega"
-        )}
-      </Button>
+    <div className="inline-flex items-center">
+      <div className="relative">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={openPicker}
+          className={value ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+        >
+          <CalendarIcon />
+          {value ? (
+            <span>
+              Entrega estimada: <span className="font-medium">{formatDate(value)}</span>
+            </span>
+          ) : (
+            "Fecha de entrega"
+          )}
+        </Button>
+        <input
+          ref={inputRef}
+          id={id}
+          type="date"
+          min={todayIso()}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-3 size-px appearance-none text-base opacity-0 [color-scheme:dark] pointer-coarse:pointer-events-auto pointer-coarse:inset-0 pointer-coarse:size-full"
+        />
+      </div>
       {value && (
         <Button
           type="button"
@@ -140,17 +158,6 @@ export function DueDatePicker({
           <XIcon />
         </Button>
       )}
-      <input
-        ref={inputRef}
-        id={id}
-        type="date"
-        min={todayIso()}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-3 size-px text-base opacity-0 [color-scheme:dark]"
-      />
     </div>
   );
 }
